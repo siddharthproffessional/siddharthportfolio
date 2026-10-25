@@ -102,6 +102,8 @@ export type Project = {
   limitations: string[]
   future: string[]
   links: { label: string; href: string }[]
+  /** Deployed app that can be embedded as a live preview. */
+  preview?: string
   unavailableLinks?: string[]
   evidence: Evidence
   verification: string[]
@@ -217,6 +219,7 @@ export const projects: Project[] = [
       'Import real building geometry through IFC or OpenUSD instead of procedural massing.',
       'Exchange scenes and results with NVIDIA Omniverse (noted as a future step in the source).',
     ],
+    preview: 'https://ai-environmental-digital-twin.vercel.app/',
     links: [
       { label: 'Open application', href: 'https://ai-environmental-digital-twin.vercel.app/' },
       { label: 'View source', href: 'https://github.com/siddharthproffessional/ai-environmental-digital-twin' },
@@ -366,6 +369,7 @@ export const projects: Project[] = [
       'Build and test semantic IFC and OpenUSD export, then verify imports in Unreal Engine and Omniverse.',
       'Add geometry instancing and keyboard navigation of the 3D view.',
     ],
+    preview: 'https://heatshield-digital-twin.vercel.app/',
     links: [{ label: 'Open application', href: 'https://heatshield-digital-twin.vercel.app/' }],
     unavailableLinks: ['Source repository is private — available on request.'],
     evidence: 'source',

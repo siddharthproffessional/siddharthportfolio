@@ -61,7 +61,10 @@ export function WorkflowMap() {
           </p>
         </div>
 
-        <ol className="relative mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-5">
+        <div aria-hidden className="relative mt-10 hidden h-px overflow-hidden bg-border md:block">
+          <span className="flow-pulse absolute inset-y-0 w-1/5 bg-gradient-to-r from-transparent via-accent to-transparent" />
+        </div>
+        <ol className="relative mt-4 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:mt-3 md:grid-cols-5">
           {stages.map((s, i) => (
             <li key={s.name} className="flex flex-col bg-background p-5">
               <div className="flex items-baseline gap-3">

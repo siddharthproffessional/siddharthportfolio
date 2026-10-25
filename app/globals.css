@@ -132,6 +132,19 @@
     background-size: 32px 32px;
   }
 
+  /* Pulse travelling along the pipeline map, left to right */
+  .flow-pulse {
+    animation: flow 4.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+  @keyframes flow {
+    from {
+      left: -20%;
+    }
+    to {
+      left: 100%;
+    }
+  }
+
   .skip-link {
     @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground;
   }

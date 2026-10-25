@@ -6,6 +6,7 @@ import { CAPABILITY, EVIDENCE_LABEL, getProject, projects } from '@/lib/projects
 import { StatusBadge } from '@/components/site/status'
 import { Diagram } from '@/components/site/diagram'
 import { MediaGallery } from '@/components/site/media-gallery'
+import { LivePreview } from '@/components/site/live-preview'
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }))
@@ -34,7 +35,7 @@ const SECTIONS = [
   ['implemented', 'What I implemented'],
   ['architecture', 'Architecture'],
   ['technology', 'Technologies'],
-  ['media', 'Screenshots'],
+  ['media', 'Preview & screenshots'],
   ['results', 'Results & validation'],
   ['challenges', 'Challenges'],
   ['limitations', 'Limitations'],
@@ -204,7 +205,12 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             </div>
           </Block>
 
-          <Block id="media" title="Screenshots">
+          <Block id="media" title={p.preview ? 'Live preview and screenshots' : 'Screenshots'}>
+            {p.preview && (
+              <div className="mb-8">
+                <LivePreview src={p.preview} title={p.title} poster={p.media[0]?.src} />
+              </div>
+            )}
             <MediaGallery media={p.media} title={p.title} />
           </Block>
 

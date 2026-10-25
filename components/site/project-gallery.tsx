@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Search, X } from 'lucide-react'
@@ -145,10 +145,39 @@ export function ProjectGallery({
   )
 }
 
+function useTilt() {
+  const ref = useRef<HTMLElement>(null)
+  const onMove = (e: React.PointerEvent) => {
+    const el = ref.current
+    if (!el || e.pointerType !== 'mouse' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const r = el.getBoundingClientRect()
+    const x = (e.clientX - r.left) / r.width - 0.5
+    const y = (e.clientY - r.top) / r.height - 0.5
+    el.style.transform = `perspective(1000px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg) translateY(-3px)`
+    el.style.setProperty('--glare-x', `${(x + 0.5) * 100}%`)
+    el.style.setProperty('--glare-y', `${(y + 0.5) * 100}%`)
+  }
+  const onLeave = () => {
+    if (ref.current) ref.current.style.transform = ''
+  }
+  return { ref, onPointerMove: onMove, onPointerLeave: onLeave }
+}
+
 function ProjectCard({ project: p }: { project: Project }) {
   const cover = p.media[0]
+  const tilt = useTilt()
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-accent/50 focus-within:ring-2 focus-within:ring-ring">
+    <article
+      ref={tilt.ref}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
+      className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-[transform,border-color] duration-300 ease-out will-change-transform hover:border-accent/50 focus-within:ring-2 focus-within:ring-ring"
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: 'radial-gradient(600px circle at var(--glare-x, 50%) var(--glare-y, 0%), hsl(var(--accent) / 0.08), transparent 45%)' }}
+      />
       <div className="relative overflow-hidden border-b border-border">
         {cover ? (
           <Image
@@ -157,7 +186,7 @@ function ProjectCard({ project: p }: { project: Project }) {
             width={cover.width}
             height={cover.height}
             sizes="(min-width: 768px) 560px, 100vw"
-            className="aspect-[16/10] h-auto w-full object-cover object-left-top"
+            className="aspect-[16/10] h-auto w-full object-cover object-left-top transition-transform duration-slow group-hover:scale-[1.03]"
           />
         ) : (
           <>

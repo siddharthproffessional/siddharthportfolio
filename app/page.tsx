@@ -2,6 +2,7 @@ import { Hero } from '@/components/site/hero'
 import { WorkflowMap } from '@/components/site/workflow-map'
 import { ProjectGallery } from '@/components/site/project-gallery'
 import { ContactForm } from '@/components/site/contact-form'
+import { EvidenceStrip, Reveal } from '@/components/site/motion'
 import {
   About,
   CapabilityLegend,
@@ -33,6 +34,7 @@ export default function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Hero resume={resume} />
+      <EvidenceStrip />
       <WorkflowMap />
 
       <section aria-labelledby="projects" className="border-b border-border">
@@ -42,18 +44,28 @@ export default function Home() {
             title="Selected projects"
             intro="Digital-twin, simulation and interoperability work. Each project states its status, what kind of system it is, and how its content was verified."
           />
-          <div className="mt-8">
+          <Reveal className="mt-8">
             <ProjectGallery projects={projects} categories={ALL_CATEGORIES} technologies={ALL_TECH} />
-          </div>
+          </Reveal>
           <CapabilityLegend />
-          <Workstreams />
+          <Reveal>
+            <Workstreams />
+          </Reveal>
         </div>
       </section>
 
-      <About />
-      <Skills />
-      <Experience />
-      <Supporting />
+      <Reveal>
+        <About />
+      </Reveal>
+      <Reveal>
+        <Skills />
+      </Reveal>
+      <Reveal>
+        <Experience />
+      </Reveal>
+      <Reveal>
+        <Supporting />
+      </Reveal>
 
       <section aria-labelledby="contact">
         <div className="container-page grid gap-12 py-16 md:py-20 lg:grid-cols-12">
