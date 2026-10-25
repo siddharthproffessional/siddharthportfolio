@@ -59,7 +59,9 @@ export default function DistrictCanvas(props: Props) {
     const mode = propsRef.current.mode
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const coarse = window.matchMedia('(pointer: coarse)').matches
-    const lowPower = coarse || (navigator.hardwareConcurrency ?? 8) <= 4
+    // ?quality=low forces the lightweight path (used for documentation captures)
+    const forcedLow = new URLSearchParams(window.location.search).get('quality') === 'low'
+    const lowPower = forcedLow || coarse || (navigator.hardwareConcurrency ?? 8) <= 4
 
     let district: District
     try {
