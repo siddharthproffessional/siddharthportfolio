@@ -12,10 +12,16 @@ export const site = {
   githubHandle: 'siddharthproffessional',
   /** Leave null unless the URL appears on the resume. */
   linkedin: null as string | null,
+  /** Phone exactly as listed on the resume. */
+  phone: '+971 50 534 0540',
+  phoneHref: 'tel:+971505340540',
+  /** Professional summary — verbatim from the resume. */
   summary:
-    'Digital-twin and simulation practitioner with an MBA focus in AI and Business Analytics and hands-on project experience in 3D scene preparation, BIM/USD interoperability, environmental visualization, and spatial reconstruction. Experienced in exploring workflows across Blender, Revit, Unreal Engine, NVIDIA Omniverse, Isaac Sim, and OpenUSD. Focused on cross-platform asset integration, AI-assisted automation, and simulation workflows for industrial, urban, and built-environment applications.',
+    'Digital-twin and simulation practitioner with an MBA focus in AI and Business Analytics and hands-on project experience in 3D scene preparation, BIM/USD interoperability, environmental visualization, and spatial reconstruction. Experienced in exploring workflows across Blender, Revit, Unreal Engine, NVIDIA Omniverse, Isaac Sim, and OpenUSD. Skilled in investigating cross-platform asset integration, AI-assisted automation, and simulation workflows to support interactive 3D environments. Interested in developing practical digital-twin solutions that connect 3D modelling, software integration, and simulation for industrial, urban, and built-environment applications.',
+  /** Hero headline and supporting line, drawn from the resume summary and projects. */
+  headline: 'Connecting 3D modelling, software integration and simulation.',
   statement:
-    'I build browser-based twins, prepare 3D scenes for simulation, and connect tools such as Blender, Revit, Unreal Engine and NVIDIA Omniverse through OpenUSD, using AI-assisted development to get working prototypes in front of people quickly.',
+    'I prepare 3D scenes, move them between Blender, Revit, Unreal Engine, NVIDIA Omniverse and Isaac Sim through OpenUSD, and build browser-based digital-twin prototypes — using AI-assisted automation to test workflows quickly.',
 }
 
 /** Canonical public URL. Set NEXT_PUBLIC_SITE_URL once the production domain is final. */

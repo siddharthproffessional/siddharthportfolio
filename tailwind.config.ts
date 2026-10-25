@@ -15,9 +15,10 @@ const config: Config = {
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
+        xl: 'calc(var(--radius) + 6px)',
         lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        md: 'calc(var(--radius) - 4px)',
+        sm: 'calc(var(--radius) - 6px)',
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -50,6 +51,7 @@ const config: Config = {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        violet: 'hsl(var(--violet))',
         status: {
           complete: 'hsl(var(--status-complete))',
           progress: 'hsl(var(--status-progress))',
@@ -91,6 +93,11 @@ const config: Config = {
           from: { opacity: '1' },
           to: { opacity: '0' },
         },
+      },
+      opacity: { 15: '0.15', 35: '0.35', 45: '0.45', 55: '0.55', 65: '0.65', 85: '0.85' },
+      transitionTimingFunction: {
+        out: 'var(--ease-out)',
+        'in-out-soft': 'var(--ease-in-out)',
       },
       transitionDuration: {
         fast: 'var(--duration-fast)',

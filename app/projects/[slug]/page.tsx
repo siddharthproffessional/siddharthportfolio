@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, ArrowUpRight, Check, CircleDashed, Lock } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, Box, Check, CircleDashed, Lock } from 'lucide-react'
 import { CAPABILITY, EVIDENCE_LABEL, getProject, projects } from '@/lib/projects'
 import { StatusBadge } from '@/components/site/status'
 import { Diagram } from '@/components/site/diagram'
 import { MediaGallery } from '@/components/site/media-gallery'
 import { LivePreview } from '@/components/site/live-preview'
+import { ModelViewerLazy as ModelViewer } from '@/components/site/model-viewer-lazy'
+import { ProjectVisual } from '@/components/site/project-visuals'
+import { GlassPanel, Reveal, SplitReveal } from '@/components/site/motion'
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }))
@@ -34,6 +37,7 @@ const SECTIONS = [
   ['objective', 'Objective'],
   ['implemented', 'What I implemented'],
   ['architecture', 'Architecture'],
+  ['model', '3D model'],
   ['technology', 'Technologies'],
   ['media', 'Preview & screenshots'],
   ['results', 'Results & validation'],
@@ -46,11 +50,11 @@ const SECTIONS = [
 
 function Block({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section aria-labelledby={id} className="scroll-mt-24 border-t border-border py-10 first:border-t-0 first:pt-0">
-      <h2 id={id} className="text-2xl font-semibold">
+    <section aria-labelledby={id} className="scroll-mt-24 border-t border-border py-12 first:border-t-0 first:pt-0">
+      <h2 id={id} className="text-4xl">
         {title}
       </h2>
-      <div className="mt-5">{children}</div>
+      <div className="mt-6">{children}</div>
     </section>
   )
 }
@@ -65,59 +69,69 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
   return (
     <article>
-      <header className="border-b border-border">
-        <div className="container-page py-10 md:py-14">
-          <Link href="/#projects" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" aria-hidden />
+      <header className="relative overflow-hidden border-b border-border pt-28 md:pt-36">
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_80%_0%,hsl(var(--accent)/0.10),transparent_70%)]" />
+        <div className="container-page relative">
+          <Link href="/#projects" className="group inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4 transition-transform duration-normal group-hover:-translate-x-0.5" aria-hidden />
             All projects
           </Link>
-          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
-            <StatusBadge status={p.status} />
-            {p.statusNote && <span className="text-sm text-muted-foreground">{p.statusNote}</span>}
+          <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-8">
+              <p className="annotation flex flex-wrap items-center gap-3">
+                {p.year && <span>{p.year}</span>}
+                {p.year && <span className="h-px w-6 bg-border" aria-hidden />}
+                <span>{p.categories.join(' · ')}</span>
+              </p>
+              <SplitReveal as="h1" text={p.title} className="mt-4 block text-5xl sm:text-6xl lg:text-7xl" />
+              <p className="prose-body mt-6 text-muted-foreground">{p.tagline}</p>
+              {p.links.length > 0 && (
+                <div className="mt-8 flex flex-wrap gap-3">
+                  {p.links.map((l, idx) => (
+                    <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className={idx === 0 ? 'btn btn-primary !py-2 text-sm' : 'btn btn-ghost !py-2 text-sm'}>
+                      {l.label}
+                      <ArrowUpRight className="h-4 w-4" aria-hidden />
+                    </a>
+                  ))}
+                  {p.model && (
+                    <a href="#model" className="btn btn-ghost !py-2 text-sm">
+                      <Box className="h-4 w-4" aria-hidden />
+                      Inspect 3D model
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+            <GlassPanel as="aside" className="p-5 lg:col-span-4">
+              <dl className="space-y-4 text-sm">
+                <div>
+                  <dt className="text-muted-foreground">Status</dt>
+                  <dd className="mt-1 flex flex-wrap items-center gap-x-3">
+                    <StatusBadge status={p.status} />
+                    {p.statusNote && <span className="text-muted-foreground">{p.statusNote}</span>}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Capability level</dt>
+                  <dd className="mt-1 font-medium">{CAPABILITY[p.capability].label}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Evidence</dt>
+                  <dd className="mt-1 font-medium">{EVIDENCE_LABEL[p.evidence]}</dd>
+                </div>
+              </dl>
+            </GlassPanel>
           </div>
-          <h1 className="mt-3 max-w-4xl text-4xl font-semibold sm:text-5xl">{p.title}</h1>
-          <p className="prose-body mt-4 text-muted-foreground">{p.tagline}</p>
-          <dl className="mt-8 grid max-w-4xl gap-6 text-sm sm:grid-cols-3">
-            <div>
-              <dt className="text-muted-foreground">Capability level</dt>
-              <dd className="mt-1 font-medium">{CAPABILITY[p.capability].label}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Project type</dt>
-              <dd className="mt-1 font-medium">{p.categories.join(', ')}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Evidence</dt>
-              <dd className="mt-1 font-medium">{EVIDENCE_LABEL[p.evidence]}</dd>
-            </div>
-          </dl>
-          {p.links.length > 0 && (
-            <div className="mt-8 flex flex-wrap gap-3">
-              {p.links.map((l, idx) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={
-                    idx === 0
-                      ? 'inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:opacity-90'
-                      : 'inline-flex items-center gap-1.5 rounded-md border border-border px-4 py-2 text-sm hover:border-accent/60 hover:text-accent'
-                  }
-                >
-                  {l.label}
-                  <ArrowUpRight className="h-4 w-4" aria-hidden />
-                </a>
-              ))}
-            </div>
-          )}
+          <Reveal kind="mask" className="mt-14 pb-14">
+            <ProjectVisual project={p} />
+          </Reveal>
         </div>
       </header>
 
       <div className="container-page grid gap-10 py-12 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-14">
         <nav aria-label="On this page" className="hidden lg:block">
-          <ul className="sticky top-24 space-y-1.5 text-sm">
-            {SECTIONS.map(([id, label]) => (
+          <ul className="sticky top-28 space-y-2 text-sm">
+            {SECTIONS.filter(([id]) => id !== 'model' || p.model).map(([id, label]) => (
               <li key={id}>
                 <a href={`#${id}`} className="text-muted-foreground hover:text-foreground">
                   {label}
@@ -171,6 +185,16 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
           <Block id="architecture" title="Architecture">
             <Diagram data={p.diagram} id={p.slug} />
           </Block>
+
+          {p.model && (
+            <Block id="model" title="Inspect the 3D model">
+              <p className="prose-body mb-6 text-muted-foreground">
+                This is the glTF 2.0 export from the HeatShield repository — the same file its automated round-trip test re-imports and checks for all 88 zone IDs.
+                Floors, zone IDs and zone types shown in the viewer are read from the model’s own metadata. Geometry is the conceptual design, not a surveyed building.
+              </p>
+              <ModelViewer src={p.model.src} label={p.model.label} />
+            </Block>
+          )}
 
           <Block id="technology" title="Technologies and their roles">
             <dl className="divide-y divide-border border-y border-border sm:hidden">

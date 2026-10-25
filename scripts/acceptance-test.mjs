@@ -24,9 +24,9 @@ const SLUGS = [
   'simready-robotics-workflow',
   'blender-usd-unreal-omniverse',
 ]
-const FORBIDDEN = [/cambridge/i, /warehouse digital twin/i, /reforecast/i, /twin ?forge/i, /linkedin\.com\/in\/siddharth-dialani/i, /github\.com\/siddharth-dialani/i]
+const FORBIDDEN = [/cambridge/i, /warehouse digital twin/i, /reforecast/i, /twin ?forge/i, /linkedin\.com\/in\/siddharth-dialani/i, /github\.com\/siddharth-dialani/i, /siddharthproffesional/i, /umang/i, /hackerrank/i]
 
-const browser = await chromium.launch()
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
 
 for (const [label, viewport] of [
   ['desktop', { width: 1440, height: 900 }],
@@ -91,21 +91,34 @@ const hsLinks = await page.request.get(base + '/projects/heatshield').then((r) =
 check('HeatShield links to its deployment', hsLinks.includes('https://heatshield-digital-twin.vercel.app/'))
 
 // Filters
-const count = () => page.locator('#projects ~ div ul.grid > li, section[aria-labelledby="projects"] ul.grid > li').count()
+// Wait for exit animations to finish, then count rendered projects
+const count = async () => {
+  await page
+    .waitForFunction(() => {
+      const m = document.querySelector('[aria-live="polite"]')?.textContent?.match(/Showing (\d+)/)
+      return m ? document.querySelectorAll('[data-project]').length === Number(m[1]) : true
+    }, null, { timeout: 8000 })
+    .catch(() => {})
+  return page.locator('[data-project]').count()
+}
 const total = await count()
 await page.getByRole('button', { name: 'In progress', exact: true }).click()
+await page.waitForTimeout(700)
 const inProgress = await count()
 check('status filter narrows results', inProgress > 0 && inProgress < total, `${inProgress}/${total}`)
 await page.getByRole('button', { name: 'All', exact: true }).click()
 await page.selectOption('#filter-tech', 'Three.js')
+await page.waitForTimeout(700)
 check('technology filter works', (await count()) === 2, String(await count()))
 await page.selectOption('#filter-tech', 'all')
 await page.fill('#filter-search', 'omniverse')
+await page.waitForTimeout(700)
 const omni = await count()
 check('search filter works', omni >= 1 && omni < total, String(omni))
 await page.fill('#filter-search', 'zzzz-nothing')
 check('empty state appears', await page.getByText('No projects match these filters.').isVisible())
 await page.getByRole('button', { name: 'Show all projects' }).click()
+await page.waitForTimeout(600)
 check('clear filters restores all projects', (await count()) === total)
 
 // Contact form validation and submission behaviour
@@ -131,8 +144,39 @@ if (resumeHref?.startsWith('/')) {
   check('resume control opens an email request (no file published yet)', Boolean(resumeHref?.startsWith('mailto:')), resumeHref ?? '')
 }
 
+// Resume files are the supplied documents
+for (const [file, type] of [['/resume/Siddharth-Dialani-Resume.pdf', /pdf/], ['/resume/Siddharth-Dialani-Resume.docx', /officedocument|octet-stream/]]) {
+  const r = await page.request.get(base + file)
+  const body = await r.body()
+  check(`${file} downloads`, r.status() === 200 && type.test(r.headers()['content-type'] || '') && body.length > 5000, `${r.headers()['content-type']} ${body.length} bytes`)
+}
+
+// Home content follows the resume
+const home = await page.request.get(base + '/').then((r) => r.text())
+for (const fact of ['ML Practitioner Certificate', 'Core Designer Certificate', 'Expected Feb 2027', 'Sep 2026 – Present', 'Meta Quest 3 PC Link', 'Blender 5.2', '+971 50 534 0540', 'BYK College of Commerce, Nashik, India']) {
+  check(`home shows resume fact: ${fact}`, home.includes(fact))
+}
+
+// Scroll-driven process section and 3D canvases
+check('process section exists', Boolean(await page.$('#process')))
+await page.evaluate(() => document.getElementById('process').scrollIntoView())
+await page.waitForTimeout(3000)
+const canvases = await page.$$eval('[data-webgl]', (els) => els.map((e) => e.dataset.webgl))
+check('3D scenes initialise (or report unavailable)', canvases.length >= 1 && canvases.every((v) => v === 'ready' || v === 'unavailable'), canvases.join(','))
+
 // Project page interactions
 await page.goto(base + '/projects/heatshield', { waitUntil: 'networkidle' })
+await page.evaluate(() => document.getElementById('model').scrollIntoView())
+const modelOk = await page.waitForSelector('[data-model="ready"]', { timeout: 120000 }).then(() => true).catch(() => false)
+check('HeatShield glTF model loads in the viewer', modelOk)
+if (modelOk) {
+  const zones = await page.locator('#model-panel dd').nth(2).textContent()
+  check('viewer reports 88 thermal zones from model metadata', zones?.trim() === '88', zones ?? '')
+  await page.getByRole('button', { name: 'Explode floors' }).click()
+  check('explode toggle switches state', await page.getByRole('button', { name: 'Collapse floors' }).isVisible())
+  await page.getByRole('button', { name: 'Wireframe', exact: true }).click()
+  check('render mode toggles', (await page.getByRole('button', { name: 'Wireframe', exact: true }).getAttribute('aria-pressed')) === 'true')
+}
 await page.getByRole('button', { name: 'Expand diagram' }).click()
 check('diagram expands in a dialog', await page.getByRole('dialog').isVisible())
 await page.keyboard.press('Escape')
@@ -152,15 +196,29 @@ const m = await browser.newPage({ viewport: { width: 390, height: 844 } })
 await m.goto(base + '/', { waitUntil: 'networkidle' })
 await m.getByRole('button', { name: 'Open menu' }).click()
 check('mobile menu opens', await m.locator('#mobile-menu').isVisible())
+await m.waitForTimeout(500)
 await m.locator('#mobile-menu').getByRole('link', { name: 'Skills' }).click()
-await m.waitForTimeout(800)
-check('mobile menu link navigates and closes', (await m.locator('#mobile-menu').count()) === 0 && (await m.evaluate(() => location.hash)) === '#skills')
+await m.waitForTimeout(1500)
+const menuLeft = await m.locator('#mobile-menu').count()
+const hashNow = await m.evaluate(() => location.hash)
+check('mobile menu link navigates and closes', menuLeft === 0 && hashNow === '#skills', `menu=${menuLeft} hash=${hashNow}`)
 
 // Keyboard: skip link is first focusable element on a fresh load
 await m.goto(base + '/', { waitUntil: 'networkidle' })
 await m.keyboard.press('Tab')
 const firstFocus = await m.evaluate(() => document.activeElement?.textContent?.trim())
 check('skip link is first in tab order', firstFocus === 'Skip to content', firstFocus)
+
+// Reduced motion: content is visible and nothing throws
+const rm = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+await rm.emulateMedia({ reducedMotion: 'reduce' })
+const rmErrors = []
+rm.on('pageerror', (e) => rmErrors.push(e.message))
+await rm.goto(base + '/', { waitUntil: 'networkidle' })
+check('reduced motion: hero name visible', await rm.getByRole('heading', { level: 1 }).isVisible())
+await rm.evaluate(() => document.getElementById('skills').scrollIntoView())
+check('reduced motion: sections render without scroll animation', await rm.getByRole('tab', { name: /Digital Twin & 3D/ }).isVisible())
+check('reduced motion: no errors', rmErrors.length === 0, rmErrors.join(' | '))
 
 // API behaviour
 const chat = await m.request.get(base + '/api/chat').then((r) => r.json())

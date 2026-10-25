@@ -81,8 +81,16 @@ export type Media = { src: string; alt: string; caption: string; width: number; 
 
 export type TechRole = { name: string; role: string; verified: boolean }
 
+export type ProjectVisual = 'heatmap' | 'model' | 'asset-flow' | 'axes' | 'usd-tree' | 'conveyor'
+
 export type Project = {
   slug: string
+  /** Year as shown on the resume; empty when the project is not on the resume. */
+  year: string
+  /** Motion treatment used for the project's showcase visual. */
+  visual: ProjectVisual
+  /** Real 3D asset for the interactive model viewer. */
+  model?: { src: string; label: string }
   title: string
   tagline: string
   status: Status
@@ -113,6 +121,8 @@ export type Project = {
 export const projects: Project[] = [
   {
     slug: 'dubai-environmental-twin',
+    year: '2026',
+    visual: 'heatmap',
     title: 'Dubai Urban & Environmental Digital Twin',
     tagline:
       'Browser-based building-environment simulation: time-of-day solar heating, surface-temperature heat maps and six retrofit scenarios.',
@@ -233,6 +243,9 @@ export const projects: Project[] = [
   },
   {
     slug: 'heatshield',
+    year: '2026',
+    visual: 'model',
+    model: { src: '/models/heatshield.gltf', label: 'HeatShield conceptual accommodation (glTF 2.0, metres)' },
     title: 'HeatShield: Accommodation Twin',
     tagline:
       'Explorable 3D labour-accommodation site connected to a five-minute thermal zone model, nine intervention scenarios and reproducible exports.',
@@ -381,126 +394,9 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: 'omniverse-intelligence-lab',
-    title: 'Omniverse Intelligence Lab',
-    tagline:
-      'Web application for exploring NVIDIA Omniverse, OpenUSD and Isaac Sim libraries, with an AI assistant that calls a controlled set of Omniverse tools.',
-    status: 'completed',
-    statusNote: 'Completed, as confirmed by the owner',
-    capability: 'software',
-    categories: ['Omniverse & OpenUSD'],
-    featured: true,
-    tech: [
-      { name: 'Next.js / React / TypeScript', role: 'Dashboard front end — pending source review', verified: false },
-      { name: 'FastAPI / Python', role: 'Backend services — pending source review', verified: false },
-      { name: 'NVIDIA Omniverse', role: 'Target platform for the controlled tool calls — pending source review', verified: false },
-      { name: 'OpenUSD', role: 'Scene description the tools operate on — pending source review', verified: false },
-    ],
-    problem:
-      'The Omniverse, OpenUSD and Isaac Sim ecosystem is broad: knowing which library, extension or API to use for a task takes a lot of reading before any scene work starts.',
-    objective:
-      'Provide one place to explore those libraries interactively and to ask an AI assistant to act on an Omniverse scene through a limited, controlled set of tools rather than unrestricted code execution.',
-    implemented: [
-      { text: 'Interactive explorer for Omniverse, OpenUSD and Isaac Sim libraries (owner-described).', verified: false },
-      { text: 'AI assistant integration that calls controlled Omniverse tools (owner-described).', verified: false },
-      { text: 'Dashboard and backend services connecting to 3D and simulation tooling (owner-described).', verified: false },
-    ],
-    planned: [
-      'Longer-term workflow the lab is meant to support: LiDAR or camera capture → USD → Omniverse → AI assistant → Isaac Sim → Unreal Engine → digital twin → VR.',
-    ],
-    diagram: {
-      title: 'Architecture as described — to be confirmed against source',
-      columns: [
-        [{ id: 'ui', label: 'Web dashboard', detail: 'Library explorer + assistant' }],
-        [{ id: 'api', label: 'Backend services', detail: 'FastAPI (to verify)' }],
-        [{ id: 'llm', label: 'AI assistant', detail: 'Chooses from allowed tools' }],
-        [{ id: 'tools', label: 'Controlled tool layer', detail: 'Whitelisted Omniverse actions' }],
-        [{ id: 'ov', label: 'Omniverse / OpenUSD stage', detail: 'Scene being edited' }],
-      ],
-      edges: [
-        ['ui', 'api'],
-        ['api', 'llm'],
-        ['llm', 'tools'],
-        ['tools', 'ov'],
-      ],
-      note: 'Drawn from the owner’s description. It will be updated once the repository has been reviewed.',
-    },
-    media: [],
-    results: ['Validation evidence has not been published yet.'],
-    challenges: [],
-    limitations: [
-      'Features listed here are owner-described and have not yet been checked against the source code or a running instance.',
-      'No screenshots or recordings are published yet.',
-    ],
-    future: ['Publish the repository or a recorded walkthrough so each integration can be verified and documented.'],
-    links: [],
-    unavailableLinks: ['Source code and application link not yet available for review.'],
-    evidence: 'owner-reported',
-    verification: ['No source code, deployment or media was available for this review. Content is limited to the owner’s description.'],
-  },
-  {
-    slug: 'bottling-line-twin',
-    title: 'Industrial Bottling-Line Digital Twin',
-    tagline:
-      'Blender-built industrial environment of a bottling line, organised and prepared for interactive visualization and future simulation.',
-    status: 'completed',
-    statusNote: '3D model and scene stage complete; simulation not yet verified',
-    capability: 'blender-model',
-    categories: ['Industrial'],
-    featured: true,
-    tech: [
-      { name: 'Blender', role: 'Modelling of the environment, machinery and assets; materials; scene hierarchy', verified: false },
-      { name: 'Python (bpy)', role: 'Scene automation where used — to be documented', verified: false },
-      { name: 'OpenUSD / Omniverse', role: 'Planned route for physics simulation — not yet verified', verified: false },
-    ],
-    problem:
-      'Manufacturing teams reviewing a production line — layout, machine spacing, operator access — usually work from 2D drawings. A navigable 3D model makes those conversations faster and is the first layer any later simulation needs.',
-    objective:
-      'Model a bottling-line environment in Blender with an organised scene, distinct machinery and asset groups and consistent materials, so it can be reused for interactive visualization and, later, physics simulation.',
-    implemented: [
-      { text: 'Blender model of an industrial bottling-line environment, including machinery, assets and materials (owner-reported).', verified: false },
-      { text: 'Scene organised for reuse in interactive visualization (owner-reported).', verified: false },
-    ],
-    planned: [
-      'Conveyor and bottle rigid-body physics in NVIDIA Omniverse.',
-      'Transfer of the scene through OpenUSD with units, hierarchy and materials checked after import.',
-      'Throughput or cycle visualization driven by simulated line states.',
-    ],
-    diagram: {
-      title: 'Current model versus proposed pipeline',
-      columns: [
-        [{ id: 'model', label: 'Blender scene', detail: 'Machinery, assets, materials' }],
-        [{ id: 'usd', label: 'USD export', detail: 'Units, hierarchy, materials', planned: true }],
-        [
-          { id: 'phys', label: 'Omniverse physics', detail: 'Conveyor + rigid bodies', planned: true },
-          { id: 'viz', label: 'Interactive viewer', detail: 'Web or real-time engine', planned: true },
-        ],
-      ],
-      edges: [
-        ['model', 'usd'],
-        ['usd', 'phys'],
-        ['usd', 'viz'],
-      ],
-      note: 'Solid node: current work. Dashed nodes: proposed stages that are not built yet.',
-    },
-    media: [],
-    results: ['Renders and scene breakdown have not been published yet.'],
-    challenges: [],
-    limitations: [
-      'This is a 3D model and scene; it does not simulate machine behaviour, product flow or physics.',
-      'No renders or scene files are published yet, so the model cannot be inspected here.',
-    ],
-    future: [
-      'Publish renders and a scene-hierarchy breakdown.',
-      'Export through OpenUSD and set up conveyor and rigid-body physics in Omniverse.',
-    ],
-    links: [],
-    unavailableLinks: ['Renders and scene files not yet published.'],
-    evidence: 'owner-reported',
-    verification: ['No Blender files or renders were available for this review. Content is limited to the owner’s description.'],
-  },
-  {
     slug: 'simready-robotics-workflow',
+    year: '2026 – Ongoing',
+    visual: 'asset-flow',
     title: 'AI-Powered SimReady Robotics Workflow',
     tagline:
       'AI-assisted software to discover simulation-ready assets on Hugging Face and bring them into OpenUSD robotics and digital-twin scenes for NVIDIA Isaac Sim.',
@@ -559,6 +455,8 @@ export const projects: Project[] = [
   },
   {
     slug: 'blender-usd-unreal-omniverse',
+    year: '2026',
+    visual: 'axes',
     title: 'Blender → USD → Unreal / Omniverse Interoperability',
     tagline:
       'Investigating how scenes and assets move between Blender, OpenUSD, Unreal Engine and NVIDIA Omniverse, and what each tool expects.',
@@ -626,6 +524,129 @@ export const projects: Project[] = [
     unavailableLinks: ['Test scenes and results log not yet published.'],
     evidence: 'owner-reported',
     verification: ['No test scenes or logs were available for this review. Tool conventions listed are general reference facts.'],
+  },
+  {
+    slug: 'omniverse-intelligence-lab',
+    year: '',
+    visual: 'usd-tree',
+    title: 'Omniverse Intelligence Lab',
+    tagline:
+      'Web application for exploring NVIDIA Omniverse, OpenUSD and Isaac Sim libraries, with an AI assistant that calls a controlled set of Omniverse tools.',
+    status: 'completed',
+    statusNote: 'Completed, as confirmed by the owner',
+    capability: 'software',
+    categories: ['Omniverse & OpenUSD'],
+    featured: true,
+    tech: [
+      { name: 'Next.js / React / TypeScript', role: 'Dashboard front end — pending source review', verified: false },
+      { name: 'FastAPI / Python', role: 'Backend services — pending source review', verified: false },
+      { name: 'NVIDIA Omniverse', role: 'Target platform for the controlled tool calls — pending source review', verified: false },
+      { name: 'OpenUSD', role: 'Scene description the tools operate on — pending source review', verified: false },
+    ],
+    problem:
+      'The Omniverse, OpenUSD and Isaac Sim ecosystem is broad: knowing which library, extension or API to use for a task takes a lot of reading before any scene work starts.',
+    objective:
+      'Provide one place to explore those libraries interactively and to ask an AI assistant to act on an Omniverse scene through a limited, controlled set of tools rather than unrestricted code execution.',
+    implemented: [
+      { text: 'Interactive explorer for Omniverse, OpenUSD and Isaac Sim libraries (owner-described).', verified: false },
+      { text: 'AI assistant integration that calls controlled Omniverse tools (owner-described).', verified: false },
+      { text: 'Dashboard and backend services connecting to 3D and simulation tooling (owner-described).', verified: false },
+    ],
+    planned: [
+      'Longer-term workflow the lab is meant to support: LiDAR or camera capture → USD → Omniverse → AI assistant → Isaac Sim → Unreal Engine → digital twin → VR.',
+    ],
+    diagram: {
+      title: 'Architecture as described — to be confirmed against source',
+      columns: [
+        [{ id: 'ui', label: 'Web dashboard', detail: 'Library explorer + assistant' }],
+        [{ id: 'api', label: 'Backend services', detail: 'FastAPI (to verify)' }],
+        [{ id: 'llm', label: 'AI assistant', detail: 'Chooses from allowed tools' }],
+        [{ id: 'tools', label: 'Controlled tool layer', detail: 'Whitelisted Omniverse actions' }],
+        [{ id: 'ov', label: 'Omniverse / OpenUSD stage', detail: 'Scene being edited' }],
+      ],
+      edges: [
+        ['ui', 'api'],
+        ['api', 'llm'],
+        ['llm', 'tools'],
+        ['tools', 'ov'],
+      ],
+      note: 'Drawn from the owner’s description. It will be updated once the repository has been reviewed.',
+    },
+    media: [],
+    results: ['Validation evidence has not been published yet.'],
+    challenges: [],
+    limitations: [
+      'Features listed here are owner-described and have not yet been checked against the source code or a running instance.',
+      'No screenshots or recordings are published yet.',
+    ],
+    future: ['Publish the repository or a recorded walkthrough so each integration can be verified and documented.'],
+    links: [],
+    unavailableLinks: ['Source code and application link not yet available for review.'],
+    evidence: 'owner-reported',
+    verification: ['No source code, deployment or media was available for this review. Content is limited to the owner’s description.'],
+  },
+  {
+    slug: 'bottling-line-twin',
+    year: '',
+    visual: 'conveyor',
+    title: 'Industrial Bottling-Line Digital Twin',
+    tagline:
+      'Blender-built industrial environment of a bottling line, organised and prepared for interactive visualization and future simulation.',
+    status: 'completed',
+    statusNote: '3D model and scene stage complete; simulation not yet verified',
+    capability: 'blender-model',
+    categories: ['Industrial'],
+    featured: true,
+    tech: [
+      { name: 'Blender', role: 'Modelling of the environment, machinery and assets; materials; scene hierarchy', verified: false },
+      { name: 'Python (bpy)', role: 'Scene automation where used — to be documented', verified: false },
+      { name: 'OpenUSD / Omniverse', role: 'Planned route for physics simulation — not yet verified', verified: false },
+    ],
+    problem:
+      'Manufacturing teams reviewing a production line — layout, machine spacing, operator access — usually work from 2D drawings. A navigable 3D model makes those conversations faster and is the first layer any later simulation needs.',
+    objective:
+      'Model a bottling-line environment in Blender with an organised scene, distinct machinery and asset groups and consistent materials, so it can be reused for interactive visualization and, later, physics simulation.',
+    implemented: [
+      { text: 'Blender model of an industrial bottling-line environment, including machinery, assets and materials (owner-reported).', verified: false },
+      { text: 'Scene organised for reuse in interactive visualization (owner-reported).', verified: false },
+    ],
+    planned: [
+      'Conveyor and bottle rigid-body physics in NVIDIA Omniverse.',
+      'Transfer of the scene through OpenUSD with units, hierarchy and materials checked after import.',
+      'Throughput or cycle visualization driven by simulated line states.',
+    ],
+    diagram: {
+      title: 'Current model versus proposed pipeline',
+      columns: [
+        [{ id: 'model', label: 'Blender scene', detail: 'Machinery, assets, materials' }],
+        [{ id: 'usd', label: 'USD export', detail: 'Units, hierarchy, materials', planned: true }],
+        [
+          { id: 'phys', label: 'Omniverse physics', detail: 'Conveyor + rigid bodies', planned: true },
+          { id: 'viz', label: 'Interactive viewer', detail: 'Web or real-time engine', planned: true },
+        ],
+      ],
+      edges: [
+        ['model', 'usd'],
+        ['usd', 'phys'],
+        ['usd', 'viz'],
+      ],
+      note: 'Solid node: current work. Dashed nodes: proposed stages that are not built yet.',
+    },
+    media: [],
+    results: ['Renders and scene breakdown have not been published yet.'],
+    challenges: [],
+    limitations: [
+      'This is a 3D model and scene; it does not simulate machine behaviour, product flow or physics.',
+      'No renders or scene files are published yet, so the model cannot be inspected here.',
+    ],
+    future: [
+      'Publish renders and a scene-hierarchy breakdown.',
+      'Export through OpenUSD and set up conveyor and rigid-body physics in Omniverse.',
+    ],
+    links: [],
+    unavailableLinks: ['Renders and scene files not yet published.'],
+    evidence: 'owner-reported',
+    verification: ['No Blender files or renders were available for this review. Content is limited to the owner’s description.'],
   },
 ]
 

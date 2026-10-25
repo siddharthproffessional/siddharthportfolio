@@ -4,52 +4,56 @@
 
 /*
   Design tokens — Siddharth Dialani portfolio
-  Navy-charcoal foundation, one restrained teal accent, status colours that carry meaning:
-  teal = completed, amber = in progress, slate = workflow exploration.
-  The site is dark by design; tokens are defined once on :root and mirrored on .dark
-  so the shadcn/ui primitives in components/ui keep working.
+  Near-black / charcoal / graphite foundation, warm-white type, a restrained electric-blue
+  accent with violet used only inside gradients and highlights. Status colours carry meaning:
+  green = completed, amber = in progress, violet = workflow exploration.
+  The site is dark by design; tokens live on :root and are mirrored on .dark for shadcn/ui.
 */
 @layer base {
   :root,
   .dark {
-    --background: 212 37% 8%;
-    --foreground: 210 29% 92%;
-    --card: 211 36% 12%;
-    --card-foreground: 210 29% 92%;
-    --popover: 211 36% 12%;
-    --popover-foreground: 210 29% 92%;
-    --primary: 172 46% 57%;
-    --primary-foreground: 212 37% 8%;
-    --secondary: 211 35% 15%;
-    --secondary-foreground: 210 29% 92%;
-    --muted: 211 35% 15%;
-    --muted-foreground: 209 20% 67%;
-    --accent: 172 46% 57%;
-    --accent-foreground: 212 37% 8%;
-    --destructive: 6 65% 65%;
-    --destructive-foreground: 212 37% 8%;
-    --border: 210 31% 20%;
-    --input: 210 31% 20%;
-    --ring: 172 46% 57%;
-    --radius: 0.5rem;
+    --background: 220 16% 4%;
+    --foreground: 38 30% 93%;
+    --card: 220 17% 7%;
+    --card-foreground: 38 30% 93%;
+    --popover: 220 17% 7%;
+    --popover-foreground: 38 30% 93%;
+    --primary: 38 30% 93%;
+    --primary-foreground: 220 16% 4%;
+    --secondary: 220 16% 11%;
+    --secondary-foreground: 38 30% 93%;
+    --muted: 220 16% 11%;
+    --muted-foreground: 228 5% 64%;
+    --accent: 218 100% 65%;
+    --accent-foreground: 220 16% 4%;
+    --violet: 249 100% 74%;
+    --destructive: 6 82% 68%;
+    --destructive-foreground: 220 16% 4%;
+    --border: 222 12% 16%;
+    --input: 222 12% 16%;
+    --ring: 218 100% 65%;
+    --radius: 0.75rem;
 
-    --status-complete: 172 46% 57%;
-    --status-progress: 39 65% 58%;
-    --status-explore: 218 36% 69%;
+    --status-complete: 158 58% 58%;
+    --status-progress: 38 74% 63%;
+    --status-explore: 249 100% 80%;
 
-    --chart-1: 172 46% 57%;
-    --chart-2: 39 65% 58%;
-    --chart-3: 218 36% 69%;
-    --chart-4: 6 65% 65%;
-    --chart-5: 210 29% 92%;
+    --chart-1: 218 100% 65%;
+    --chart-2: 38 74% 63%;
+    --chart-3: 249 100% 80%;
+    --chart-4: 6 82% 68%;
+    --chart-5: 38 30% 93%;
 
-    --duration-fast: 150ms;
-    --duration-normal: 220ms;
-    --duration-slow: 320ms;
+    /* Motion system: one easing family, three durations */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --duration-fast: 160ms;
+    --duration-normal: 260ms;
+    --duration-slow: 520ms;
 
-    --font-display: 'Archivo Variable', 'IBM Plex Sans', system-ui, sans-serif;
-    --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
-    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --font-display: 'Instrument Serif', 'Times New Roman', serif;
+    --font-sans: 'Geist Variable', system-ui, sans-serif;
+    --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
   }
 }
 
@@ -60,7 +64,7 @@
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 5.5rem;
     color-scheme: dark;
   }
 
@@ -71,17 +75,21 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    font-feature-settings: 'ss01', 'cv11';
   }
 
   h1,
   h2,
-  h3,
-  h4 {
+  h3 {
     font-family: var(--font-display);
-    font-stretch: 88%;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.04;
     text-wrap: balance;
+  }
+
+  h4 {
+    font-weight: 600;
   }
 
   p {
@@ -89,13 +97,13 @@
   }
 
   ::selection {
-    background: hsl(var(--accent) / 0.3);
+    background: hsl(var(--accent) / 0.35);
   }
 
   :focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 3px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -114,27 +122,99 @@
 
 @layer components {
   .container-page {
-    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[78rem] px-4 sm:px-6 lg:px-10;
   }
 
   .prose-body {
-    @apply max-w-[68ch] text-[1.0625rem] leading-[1.7] text-foreground/90;
+    @apply max-w-[66ch] text-[1.0625rem] leading-[1.7] text-foreground/85;
   }
 
   .link {
     @apply text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent;
   }
 
-  /* Faint engineering grid used behind the hero and diagram canvases only */
+  /* Technical annotation text: coordinates, dimensions, stage indices */
+  .annotation {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    @apply text-muted-foreground;
+  }
+
+  /* Glass: used for navigation, floating controls, info panels and the contact panel only */
+  .glass {
+    position: relative;
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.065), hsl(0 0% 100% / 0.02));
+    border: 1px solid hsl(0 0% 100% / 0.09);
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.07),
+      0 24px 60px -36px rgb(0 0 0 / 0.9);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  /* Pointer-responsive sheen for glass panels (set --mx / --my from JS) */
+  .glass-sheen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--sheen, 0);
+    transition: opacity var(--duration-slow) var(--ease-out);
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), hsl(var(--accent) / 0.12), transparent 60%);
+  }
+
+  .metallic {
+    background: linear-gradient(180deg, #faf8f4 0%, #e4e2de 38%, #a9adb5 72%, #d8d6d2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .grid-paper {
-    background-image: linear-gradient(hsl(var(--border) / 0.45) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.45) 1px, transparent 1px);
+    background-image: linear-gradient(hsl(var(--border) / 0.55) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.55) 1px, transparent 1px);
     background-size: 32px 32px;
   }
 
-  /* Pulse travelling along the pipeline map, left to right */
+  /* Buttons */
+  .btn {
+    @apply relative inline-flex select-none items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[0.95rem] font-medium;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      background-color var(--duration-normal) var(--ease-out),
+      border-color var(--duration-normal) var(--ease-out),
+      color var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  .btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+  .btn-primary {
+    @apply bg-foreground text-background;
+    box-shadow: 0 10px 30px -12px hsl(var(--accent) / 0.55);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 14px 40px -12px hsl(var(--accent) / 0.75);
+  }
+  .btn-ghost {
+    @apply glass text-foreground;
+  }
+  .btn-ghost:hover {
+    border-color: hsl(var(--accent) / 0.5);
+  }
+
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground;
+  }
+
+  /* Pipeline pulse */
   .flow-pulse {
-    animation: flow 4.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation: flow 4.5s var(--ease-in-out) infinite;
   }
   @keyframes flow {
     from {
@@ -145,7 +225,17 @@
     }
   }
 
-  .skip-link {
-    @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-foreground;
+  /* Scroll cue */
+  .scroll-cue span {
+    animation: cue 2.2s var(--ease-in-out) infinite;
+  }
+  @keyframes cue {
+    0% {
+      transform: translateY(-100%);
+    }
+    60%,
+    100% {
+      transform: translateY(100%);
+    }
   }
 }

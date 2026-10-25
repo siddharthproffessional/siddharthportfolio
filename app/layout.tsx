@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from 'next'
-import '@fontsource-variable/archivo/wdth.css'
-import '@fontsource/ibm-plex-sans/400.css'
-import '@fontsource/ibm-plex-sans/500.css'
-import '@fontsource/ibm-plex-sans/600.css'
-import '@fontsource/ibm-plex-mono/400.css'
+import '@fontsource/instrument-serif/400.css'
+import '@fontsource/instrument-serif/400-italic.css'
+import '@fontsource-variable/geist'
+import '@fontsource-variable/geist-mono'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { ChunkLoadErrorHandler } from '@/components/chunk-load-error-handler'
@@ -44,7 +43,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#0D141C',
+  themeColor: '#08090B',
   colorScheme: 'dark',
 }
 

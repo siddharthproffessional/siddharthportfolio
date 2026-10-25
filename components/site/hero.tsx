@@ -2,92 +2,113 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
-import { motion, useReducedMotion } from 'framer-motion'
-import { MapPin, Move3d } from 'lucide-react'
-import { site, type ResumeAvailability } from '@/lib/site'
+import { motion} from 'framer-motion'
+import { ArrowDown, Download, FileText, Move3d } from 'lucide-react'
+import { resumeRequestHref, site, type ResumeAvailability } from '@/lib/site'
 import { cn } from '@/lib/utils'
-import { ResumeLinks } from './resume-links'
-import type { Stage } from './twin-scene'
+import { EASE, SplitReveal, useReduced } from './motion'
+import type { HeroStage } from '@/lib/three/stages'
 
-const TwinScene = dynamic(() => import('./twin-scene'), { ssr: false })
+const DistrictCanvas = dynamic(() => import('./district-canvas'), { ssr: false })
 
-const STAGES = [
-  { name: 'Capture', note: 'Scan builds a point cloud' },
-  { name: 'Model', note: 'Edges drawn over the scan' },
-  { name: 'Simulate', note: 'Sun-driven surface heat map' },
-]
+const STAGES: HeroStage[] = ['Wireframe', 'Clay', 'Material']
 
 export function Hero({ resume }: { resume: ResumeAvailability }) {
-  const reduce = useReducedMotion()
-  const [stage, setStage] = useState<Stage>(reduce ? 2 : 0)
+  const reduce = useReduced()
+  const [stage, setStage] = useState<HeroStage>('Wireframe')
 
-  const item = (i: number) =>
-    reduce
-      ? {}
-      : {
-          initial: { opacity: 0, y: 18 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.6, delay: 0.15 + i * 0.1, ease: [0.22, 1, 0.36, 1] },
-        }
+  // Always declare the same initial/animate pair so server and client markup match;
+  // reduced-motion visitors get an instant transition instead of a different tree.
+  const fade = (delay: number) => ({
+    initial: { opacity: 0, y: 14, filter: 'blur(6px)' },
+    animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
+    transition: reduce ? { duration: 0 } : { duration: 0.9, delay, ease: EASE },
+  })
 
   return (
-    <section aria-labelledby="hero-title" className="relative overflow-hidden border-b border-border">
-      {/* Desktop: the 3D scene fills the hero behind the text. Mobile: it sits below the text. */}
-      <div className="relative flex flex-col lg:block lg:min-h-[min(calc(100vh-4rem),860px)]">
-        <div className="container-page relative z-10 pb-8 pt-14 md:pt-20 lg:flex lg:min-h-[min(calc(100vh-4rem),860px)] lg:items-center lg:py-20">
-          <div className="max-w-[36rem]">
-            <motion.p {...item(0)} className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 text-accent" aria-hidden />
-              {site.location}
-            </motion.p>
-            <motion.h1 {...item(1)} id="hero-title" className="text-[2.75rem] font-semibold leading-[1] sm:text-6xl lg:text-[4.5rem]">
-              {site.name}
-            </motion.h1>
-            <motion.p {...item(2)} className="mt-5 font-display text-xl font-medium text-foreground/85 [font-stretch:92%] sm:text-2xl">
-              {site.title}
-            </motion.p>
-            <motion.p {...item(3)} className="prose-body mt-6 text-muted-foreground">
-              {site.statement}
-            </motion.p>
-            <motion.div {...item(4)} className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#projects"
-                className="inline-flex items-center rounded-md bg-accent px-5 py-2.5 text-[0.95rem] font-semibold text-accent-foreground transition-opacity hover:opacity-90"
-              >
-                View projects
-              </a>
-              <ResumeLinks resume={resume} />
-              <a href="#contact" className="px-2 py-2.5 text-[0.95rem] text-muted-foreground transition-colors hover:text-foreground">
-                Contact
-              </a>
-            </motion.div>
+    <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
+      {/* Scene: full-bleed behind the text on desktop, a framed band below the text on mobile */}
+      <div className="relative flex min-h-[100svh] flex-col lg:block">
+        <div className="relative z-10 order-1 pt-28 lg:absolute lg:inset-0 lg:flex lg:items-center lg:pt-16">
+          <div className="container-page">
+            <div className="max-w-[40rem]">
+              <motion.p {...fade(0.05)} className="annotation mb-6 flex items-center gap-3">
+                <span className="h-px w-8 bg-accent/70" aria-hidden />
+                25.20° N, 55.27° E · {site.location}
+              </motion.p>
+              <SplitReveal as="h1" id="hero-title" text={site.name} delay={0.15} wordClassName="metallic" className="block text-[3.4rem] leading-[0.95] sm:text-7xl lg:text-[6.4rem]" />
+              <motion.p {...fade(0.55)} className="mt-5 text-lg font-medium text-foreground/90 sm:text-xl">
+                {site.title}
+              </motion.p>
+              <motion.p {...fade(0.7)} className="mt-7 font-display text-[1.75rem] italic leading-tight text-foreground sm:text-[2.1rem]">
+                {site.headline}
+              </motion.p>
+              <motion.p {...fade(0.82)} className="prose-body mt-4 text-muted-foreground">
+                {site.statement}
+              </motion.p>
+              <motion.div {...fade(0.95)} className="mt-9 flex flex-wrap items-center gap-3">
+                <a href="#projects" className="btn btn-primary">
+                  Explore projects
+                </a>
+                {resume.pdf ? (
+                  <>
+                    <a href={resume.pdf} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+                      <FileText className="h-4 w-4" aria-hidden />
+                      View resume
+                    </a>
+                    <a href={resume.pdf} download className="btn !px-3 text-muted-foreground hover:text-foreground" aria-label="Download resume as PDF">
+                      <Download className="h-4 w-4" aria-hidden />
+                      <span className="hidden sm:inline">PDF</span>
+                    </a>
+                  </>
+                ) : (
+                  <a href={resumeRequestHref()} className="btn btn-ghost">
+                    Request resume
+                  </a>
+                )}
+              </motion.div>
+            </div>
           </div>
         </div>
 
-        <div className="relative h-[380px] sm:h-[460px] lg:absolute lg:inset-0 lg:h-auto">
-          <TwinScene onStage={(s) => setStage(s)} className="absolute inset-0 cursor-grab active:cursor-grabbing" />
-          {/* Legibility fade behind the headline on wide screens */}
-          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 hidden w-[58%] bg-gradient-to-r from-background via-background/85 to-transparent lg:block" />
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-background to-transparent lg:hidden" />
+        <div className="relative order-2 mt-6 h-[58svh] min-h-[340px] lg:absolute lg:inset-0 lg:mt-0 lg:h-auto">
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_50%_at_70%_40%,hsl(var(--accent)/0.10),transparent_70%)]" />
+          <DistrictCanvas mode="hero" onStage={setStage} className="absolute inset-0" />
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 hidden w-[56%] bg-gradient-to-r from-background via-background/80 to-transparent lg:block" />
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-background to-transparent" />
 
-          <div className="absolute bottom-4 right-4 z-10 w-[min(21rem,calc(100%-2rem))] rounded-lg border border-border bg-background/80 p-3 backdrop-blur lg:bottom-8 lg:right-8">
-            <ol className="grid grid-cols-3 gap-2" aria-label="Animation stages">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.8, delay: 1.2, ease: EASE }}
+            className="glass absolute bottom-6 right-4 z-10 w-[min(19rem,calc(100%-2rem))] rounded-xl p-3.5 lg:bottom-10 lg:right-10"
+          >
+            <ol className="grid grid-cols-3 gap-2" aria-label="Render stages">
               {STAGES.map((s, i) => (
-                <li key={s.name} aria-current={stage === i ? 'step' : undefined}>
-                  <span className={cn('block h-0.5 rounded-full transition-colors duration-normal', stage >= i ? 'bg-accent' : 'bg-border')} />
-                  <span className={cn('mt-2 block text-sm font-medium transition-colors', stage === i ? 'text-foreground' : 'text-muted-foreground')}>
-                    {s.name}
-                  </span>
+                <li key={s} aria-current={stage === s ? 'step' : undefined}>
+                  <span className={cn('block h-0.5 rounded-full transition-colors duration-slow', STAGES.indexOf(stage) >= i ? 'bg-accent' : 'bg-white/10')} />
+                  <span className={cn('mt-2 block text-[0.8rem] transition-colors duration-normal', stage === s ? 'text-foreground' : 'text-muted-foreground')}>{s}</span>
                 </li>
               ))}
             </ol>
-            <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <p className="mt-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
               <Move3d className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              {STAGES[stage].note}. Illustrative scene — drag to rotate.
+              Concept scene — drag to rotate
             </p>
-          </div>
+          </motion.div>
         </div>
+
+        <a
+          href="#process"
+          className="scroll-cue absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-muted-foreground hover:text-foreground lg:flex"
+        >
+          Scroll
+          <span className="relative block h-10 w-px overflow-hidden bg-white/10" aria-hidden>
+            <span className="absolute inset-0 bg-foreground/70" />
+          </span>
+          <ArrowDown className="sr-only" />
+        </a>
       </div>
     </section>
   )

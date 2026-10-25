@@ -10,7 +10,7 @@ import { ArrowUpRight, Play } from 'lucide-react'
 export function LivePreview({ src, title, poster }: { src: string; title: string; poster?: string }) {
   const [on, setOn] = useState(false)
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
+    <div className="overflow-hidden rounded-xl border border-border">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
         <p className="font-medium">Interactive preview</p>
         <a href={src} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-accent">
@@ -38,7 +38,7 @@ export function LivePreview({ src, title, poster }: { src: string; title: string
             // eslint-disable-next-line @next/next/no-img-element
             <img src={poster} alt="" className="absolute inset-0 h-full w-full object-cover object-left-top opacity-40 transition-opacity group-hover:opacity-55" />
           )}
-          <span className="relative inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 font-semibold text-accent-foreground shadow-lg">
+          <span className="btn btn-primary relative">
             <Play className="h-4 w-4" aria-hidden />
             Run the live 3D app here
           </span>

@@ -104,7 +104,7 @@ export function Assistant() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="assistant-panel"
-        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-sm font-medium shadow-lg hover:border-accent/60"
+        className="fixed bottom-[4.75rem] right-5 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-sm font-medium shadow-lg hover:border-accent/60"
       >
         {open ? <X className="h-4 w-4" aria-hidden /> : <MessageSquare className="h-4 w-4 text-accent" aria-hidden />}
         {open ? 'Close' : 'Ask about my work'}
@@ -115,7 +115,7 @@ export function Assistant() {
           id="assistant-panel"
           role="dialog"
           aria-label="Portfolio assistant"
-          className="fixed bottom-20 right-4 z-40 flex h-[min(32rem,calc(100vh-7rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
+          className="fixed bottom-[8.5rem] right-4 z-40 flex h-[min(32rem,calc(100vh-7rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
         >
           <div className="border-b border-border px-4 py-3">
             <p className="font-medium">Portfolio assistant</p>

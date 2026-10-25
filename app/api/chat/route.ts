@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { site } from '@/lib/site'
 import { CAPABILITY, STATUS_LABEL, projects, supportingProjects, workstreams } from '@/lib/projects'
-import { certifications, education, experience, skillGroups } from '@/lib/profile'
+import { certifications, education, experience, languages, skillGroups } from '@/lib/profile'
 import { clientKey, rateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
@@ -38,14 +38,15 @@ Rules:
 PROFILE
 Name: ${site.name}. Title: ${site.title}. Location: ${site.location}.
 Summary: ${site.summary}
-Email: ${site.email}. GitHub: ${site.github}.
+Email: ${site.email}. Phone: ${site.phone}. GitHub: ${site.github}.
 
 EXPERIENCE
-${experience.map((r) => `- ${r.title}, ${r.org}${r.period ? ` (${r.period})` : ''}: ${r.summary} ${r.points.join(' ')}`).join('\n')}
+${experience.map((r) => `- ${r.title}, ${r.org}, ${r.location} (${r.period}): ${r.points.join(' ')}`).join('\n')}
 
 EDUCATION
-${education.map((e) => `- ${e.title}, ${e.org}${e.period ? ` (${e.period})` : ''}. ${e.note}`).join('\n')}
-Certifications: ${certifications.map((c) => `${c.title} (${c.issuer})`).join(', ')}
+${education.map((e) => `- ${e.title}, ${e.org}${e.period ? ` (${e.period})` : ''}`).join('\n')}
+Certifications: ${certifications.map((c) => `${c.title} — ${c.issuer} (${c.date})`).join(', ')}
+Languages: ${languages.map((l) => `${l.name} (${l.level})`).join(', ')}
 
 SKILLS (no proficiency levels claimed)
 ${skillGroups.map((g) => `- ${g.group}: ${g.skills.map((s) => s.name).join(', ')}`).join('\n')}

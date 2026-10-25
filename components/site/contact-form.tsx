@@ -91,7 +91,7 @@ export function ContactForm({ email }: { email: string }) {
   }
 
   const input =
-    'mt-1.5 w-full rounded-md border bg-card px-3 py-2.5 text-[0.95rem] text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-2 focus-visible:outline-ring'
+    'mt-1.5 w-full rounded-lg border bg-background/60 px-3.5 py-3 text-[0.95rem] text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-2 focus-visible:outline-ring'
 
   return (
     <form onSubmit={submit} noValidate className="space-y-5">
@@ -129,7 +129,7 @@ export function ContactForm({ email }: { email: string }) {
       <button
         type="submit"
         disabled={state.kind === 'sending'}
-        className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-2.5 font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+        className="btn btn-primary disabled:opacity-60"
       >
         {state.kind === 'sending' && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
         {state.kind === 'sending' ? 'Sending…' : 'Send message'}

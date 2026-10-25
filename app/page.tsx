@@ -1,18 +1,12 @@
 import { Hero } from '@/components/site/hero'
-import { WorkflowMap } from '@/components/site/workflow-map'
-import { ProjectGallery } from '@/components/site/project-gallery'
+import { ProcessStory } from '@/components/site/process-story'
+import { Showcase } from '@/components/site/showcase'
 import { ContactForm } from '@/components/site/contact-form'
-import { EvidenceStrip, Reveal } from '@/components/site/motion'
-import {
-  About,
-  CapabilityLegend,
-  ContactDetails,
-  Experience,
-  SectionHeading,
-  Skills,
-  Supporting,
-  Workstreams,
-} from '@/components/site/sections'
+import { SkillsTabs } from '@/components/site/skills-tabs'
+import { Timeline } from '@/components/site/timeline'
+import { ContactFinale } from '@/components/site/contact-finale'
+import { EvidenceStrip, GlassPanel } from '@/components/site/motion'
+import { About, CapabilityLegend, ContactDetails, SectionHeading, Supporting, Workstreams } from '@/components/site/sections'
 import { ALL_CATEGORIES, ALL_TECH, projects } from '@/lib/projects'
 import { site, siteUrl } from '@/lib/site'
 import { getResume } from '@/lib/resume'
@@ -35,55 +29,56 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Hero resume={resume} />
       <EvidenceStrip />
-      <WorkflowMap />
 
-      <section aria-labelledby="projects" className="border-b border-border">
-        <div className="container-page py-16 md:py-20">
+      <section aria-labelledby="projects">
+        <div className="container-page py-24 md:py-32">
           <SectionHeading
             id="projects"
+            kicker="Selected work · 2026"
             title="Selected projects"
             intro="Digital-twin, simulation and interoperability work. Each project states its status, what kind of system it is, and how its content was verified."
           />
-          <Reveal className="mt-8">
-            <ProjectGallery projects={projects} categories={ALL_CATEGORIES} technologies={ALL_TECH} />
-          </Reveal>
+          <div className="mt-14">
+            <Showcase projects={projects} categories={ALL_CATEGORIES} technologies={ALL_TECH} />
+          </div>
           <CapabilityLegend />
-          <Reveal>
-            <Workstreams />
-          </Reveal>
+          <Workstreams />
         </div>
       </section>
 
-      <Reveal>
-        <About />
-      </Reveal>
-      <Reveal>
-        <Skills />
-      </Reveal>
-      <Reveal>
-        <Experience />
-      </Reveal>
-      <Reveal>
-        <Supporting />
-      </Reveal>
+      <ProcessStory />
+      <About />
 
-      <section aria-labelledby="contact">
-        <div className="container-page grid gap-12 py-16 md:py-20 lg:grid-cols-12">
+      <section aria-labelledby="skills" className="border-t border-border">
+        <div className="container-page py-24 md:py-32">
+          <SectionHeading id="skills" title="Skills and technologies" intro="As listed on my resume, grouped the same way. Where a project shows a tool in use, it is linked." />
+          <div className="mt-14">
+            <SkillsTabs />
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="experience" className="border-t border-border">
+        <div className="container-page py-24 md:py-32">
+          <SectionHeading id="experience" title="Experience and education" />
+          <div className="mt-16">
+            <Timeline />
+          </div>
+        </div>
+      </section>
+
+      <Supporting />
+
+      <ContactFinale resume={resume}>
+        <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <SectionHeading
-              id="contact"
-              title="Contact"
-              intro="Open to junior Digital Twin, Simulation, 3D Integration and Physical AI / robotics simulation roles in Dubai."
-            />
-            <div className="mt-8">
-              <ContactDetails />
-            </div>
+            <ContactDetails />
           </div>
-          <div className="lg:col-span-7">
+          <GlassPanel className="p-6 sm:p-8 lg:col-span-7">
             <ContactForm email={site.email} />
-          </div>
+          </GlassPanel>
         </div>
-      </section>
+      </ContactFinale>
     </>
   )
 }

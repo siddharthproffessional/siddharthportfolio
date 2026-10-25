@@ -1,79 +1,83 @@
 /**
- * Skills, experience and education. Experience and education follow the resume;
- * skills list tools with the project evidence where each one has been used.
- * No proficiency levels are claimed.
+ * Skills, experience, certifications, education and languages — transcribed from the
+ * supplied resume (public/resume/Siddharth-Dialani-Resume.docx). Do not add items that
+ * are not on the resume. Evidence links only point to projects where a tool is used.
  */
 
 export type Skill = { name: string; evidence?: { label: string; href: string }[] }
-export type SkillGroup = { group: string; summary: string; skills: Skill[] }
+export type SkillGroup = { id: string; group: string; summary: string; skills: Skill[] }
 
 const p = (slug: string, label: string) => ({ label, href: `/projects/${slug}` })
 
 export const skillGroups: SkillGroup[] = [
   {
-    group: 'Digital twin & 3D',
-    summary: 'Authoring and preparing scenes in the main DCC, BIM and real-time tools.',
+    id: 'twin',
+    group: 'Digital Twin & 3D',
+    summary: 'Authoring, preparing and reviewing scenes in DCC, BIM, real-time and simulation tools.',
     skills: [
-      { name: 'Blender', evidence: [p('bottling-line-twin', 'Bottling line'), p('blender-usd-unreal-omniverse', 'Interop')] },
-      { name: 'Revit' },
+      { name: 'Blender 5.2', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
       { name: 'Unreal Engine', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
-      { name: 'NVIDIA Omniverse', evidence: [p('omniverse-intelligence-lab', 'Intelligence Lab')] },
-      { name: 'NVIDIA Isaac Sim', evidence: [p('simready-robotics-workflow', 'SimReady')] },
-      { name: 'OpenUSD / USD Bridge', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
+      { name: 'NVIDIA Omniverse', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
+      { name: 'Isaac Sim', evidence: [p('simready-robotics-workflow', 'SimReady')] },
+      { name: 'Revit' },
+      { name: 'OpenUSD/USD Bridge', evidence: [p('simready-robotics-workflow', 'SimReady'), p('blender-usd-unreal-omniverse', 'Interop')] },
     ],
   },
   {
-    group: '3D reconstruction',
-    summary: 'Turning real spaces into usable 3D data.',
+    id: 'recon',
+    group: 'Reconstruction & Visualization',
+    summary: 'Capturing real spaces and turning them into navigable 3D.',
     skills: [
       { name: 'COLMAP' },
       { name: 'Gaussian Splatting' },
       { name: 'SuperSplat' },
-      { name: 'iPhone LiDAR / RoomPlan' },
+      { name: 'iPhone LiDAR/RoomPlan' },
       { name: '360° capture' },
-      { name: 'Point clouds' },
       { name: 'PlayCanvas' },
     ],
   },
   {
-    group: 'Interoperability & simulation',
-    summary: 'Moving data between tools and setting up interaction and physics.',
+    id: 'integration',
+    group: 'Integration & Simulation',
+    summary: 'Connecting tools, exchanging scenes and testing interaction and physics.',
     skills: [
-      { name: 'BIM-to-3D workflows' },
-      { name: 'USD import / export', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
-      { name: 'glTF export with ID checks', evidence: [p('heatshield', 'HeatShield')] },
-      { name: 'MCP integrations' },
-      { name: 'OpenXR / VR interaction' },
-      { name: 'Collision & physics workflows', evidence: [p('simready-robotics-workflow', 'SimReady')] },
-      { name: 'Thermal zone & solar models', evidence: [p('heatshield', 'HeatShield'), p('dubai-environmental-twin', 'Env. twin')] },
+      { name: 'MCP' },
+      { name: 'Revit MCP' },
+      { name: 'USD exchange workflows', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
+      { name: 'OpenXR' },
+      { name: 'Meta Quest 3 PC Link' },
+      { name: 'Locomotion' },
+      { name: 'Collision/physics testing' },
     ],
   },
   {
-    group: 'Programming & development',
-    summary: 'Building the applications around the 3D work.',
+    id: 'code',
+    group: 'Programming & Tools',
+    summary: 'Building and shipping the software around the 3D work.',
     skills: [
-      { name: 'Python' },
+      { name: 'Python', evidence: [p('simready-robotics-workflow', 'SimReady'), p('blender-usd-unreal-omniverse', 'Interop')] },
       { name: 'JavaScript', evidence: [p('heatshield', 'HeatShield'), p('dubai-environmental-twin', 'Env. twin')] },
       { name: 'TypeScript' },
-      { name: 'Three.js / WebGL', evidence: [p('heatshield', 'HeatShield'), p('dubai-environmental-twin', 'Env. twin')] },
-      { name: 'React / Next.js' },
+      { name: 'React' },
+      { name: 'Next.js' },
       { name: 'FastAPI' },
       { name: 'Node.js' },
-      { name: 'Git' },
-      { name: 'REST APIs' },
-    ],
-  },
-  {
-    group: 'AI & automation',
-    summary: 'AI-assisted development and agent workflows.',
-    skills: [
-      { name: 'OpenAI Codex', evidence: [p('simready-robotics-workflow', 'SimReady')] },
+      { name: 'Codex', evidence: [p('simready-robotics-workflow', 'SimReady')] },
       { name: 'Claude Code' },
       { name: 'Cursor' },
-      { name: 'AI-agent workflows' },
       { name: 'n8n' },
+      { name: 'GitHub' },
+      { name: 'Docker' },
+      { name: 'Vercel', evidence: [p('heatshield', 'HeatShield'), p('dubai-environmental-twin', 'Env. twin')] },
+      { name: 'PostgreSQL' },
     ],
   },
+]
+
+export const languages = [
+  { name: 'English', level: 'Fluent' },
+  { name: 'Hindi', level: 'Native' },
+  { name: 'Marathi', level: 'Conversational' },
 ]
 
 export type Role = {
@@ -81,50 +85,37 @@ export type Role = {
   org: string
   location: string
   period: string
-  summary: string
   points: string[]
 }
 
 export const experience: Role[] = [
   {
-    title: 'Student Research Assistant',
+    title: 'Student Research Assistant (SRA)',
     org: 'Middlesex University Dubai',
     location: 'Dubai, UAE',
-    period: 'Sep 2026 – present',
-    summary: 'Research assistant on “Cognitive Twins”, a project on AI and digital twins.',
+    period: 'Sep 2026 – Present',
     points: [
-      'Generative AI applied to digital-twin content and workflows.',
-      '3D reconstruction and spatial computing for capturing real spaces.',
-      'Blender workflows for preparing and organising 3D scenes.',
-      'Digital-twin pipeline development connecting capture, modelling and visualization tools.',
+      'Research generative-AI and computer-vision workflows for digital twins, 3D scene reconstruction, and spatial computing.',
+      'Build and test Blender, iPhone LiDAR/RoomPlan, 360° capture, COLMAP, Gaussian Splatting, SuperSplat, PlayCanvas, and OpenUSD workflows.',
+      'Explore scene-preparation automation and MCP integrations across Revit, Omniverse, and Isaac Sim; document interoperability and validation issues.',
     ],
-  },
-  {
-    title: 'Digital Marketing Manager',
-    org: 'Umang Furnishings',
-    location: 'Dubai, UAE',
-    period: '',
-    summary: 'Digital marketing for a Dubai furnishings company.',
-    points: ['Developed Maison Lune, a luxury sub-brand under Umang Furnishings.'],
-  },
-]
-
-export const education = [
-  {
-    title: 'MBA, Business Analytics and Artificial Intelligence',
-    org: 'Middlesex University Dubai',
-    period: 'Jan 2026 – present',
-    note: 'Applied research project: Digital Twin Readiness in UAE Industrial Firms.',
-  },
-  {
-    title: 'Bachelor of Computer Applications (BCA)',
-    org: 'BYK College of Commerce, Savitribai Phule Pune University',
-    period: '',
-    note: '',
   },
 ]
 
 export const certifications = [
-  { title: 'Python (Basic)', issuer: 'HackerRank' },
-  { title: 'SQL (Basic)', issuer: 'HackerRank' },
+  { title: 'ML Practitioner Certificate', issuer: 'Dataiku', date: 'July 2026' },
+  { title: 'Core Designer Certificate', issuer: 'Dataiku', date: 'July 2026' },
+]
+
+export const education = [
+  {
+    title: 'MBA, Business Analytics & Artificial Intelligence',
+    org: 'Middlesex University Dubai',
+    period: 'Expected Feb 2027',
+  },
+  {
+    title: 'BCA',
+    org: 'BYK College of Commerce, Nashik, India',
+    period: '',
+  },
 ]
