@@ -1,101 +1,116 @@
+import { NextResponse } from 'next/server'
+import { site } from '@/lib/site'
+import { CAPABILITY, STATUS_LABEL, projects, supportingProjects, workstreams } from '@/lib/projects'
+import { certifications, education, experience, skillGroups } from '@/lib/profile'
+import { clientKey, rateLimit } from '@/lib/rate-limit'
+
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
-import { NextRequest } from 'next/server'
+const API_URL = 'https://apps.abacus.ai/v1/chat/completions'
 
-const SYSTEM_PROMPT = `You are Siddharth Dialani's AI portfolio assistant. You answer questions about Siddharth professionally and concisely.
+/** The assistant's knowledge is generated from the same data the site renders, so it cannot drift. */
+function systemPrompt(): string {
+  const proj = projects
+    .map((p) => {
+      const done = p.implemented.map((i) => `    - ${i.text}${i.verified ? '' : ' [owner-reported, not yet verified]'}`).join('\n')
+      const planned = (p.planned ?? []).map((x) => `    - PLANNED (not built): ${x}`).join('\n')
+      const limits = p.limitations.map((x) => `    - ${x}`).join('\n')
+      return `- ${p.title} — status: ${STATUS_LABEL[p.status]}${p.statusNote ? ` (${p.statusNote})` : ''}; capability: ${CAPABILITY[p.capability].label}. ${p.tagline}
+  Implemented:
+${done || '    - Nothing published yet.'}
+${planned}
+  Limitations:
+${limits}
+  Links: ${p.links.map((l) => `${l.label}: ${l.href}`).join(', ') || 'none public'}; page: /projects/${p.slug}`
+    })
+    .join('\n')
 
-KEY INFORMATION ABOUT SIDDHARTH DIALANI:
-- AI Engineer based in Dubai, UAE
-- Pursuing MBA in Business Analytics & Artificial Intelligence at Middlesex University Dubai
-- Bachelor of Computer Applications from BYK College of Commerce
-- Certifications: Python (Basic), SQL (Basic) from HackerRank
-- Philosophy: "I don't write code without AI. I build intelligent systems that solve real-world problems."
+  return `You are the assistant on ${site.name}'s portfolio website. Answer questions about him using ONLY the facts below. Be concise (2–4 sentences), plain and professional.
 
-PROJECTS:
-1. ATLAS AI - Financial Intelligence Platform: AI-powered market intelligence with Anthropic Claude, autonomous portfolio monitoring, paper trading, Three.js visualizations, AWS, Docker, PostgreSQL
-2. AI Website Development: Claude Code workflow, Cursor, AI-reviewed code, production deployment, Vercel, GitHub CI/CD
-3. Interactive 3D Earth News Platform: Real-time News API, Three.js 3D Globe, geographical news visualization
-4. Jarvis Business OS: Autonomous AI Agents, WhatsApp Business API, Telegram approval workflows, n8n, Anthropic API, human-in-the-loop
+Rules:
+- Never invent projects, employers, dates, credentials, metrics or integrations.
+- Keep capability levels exact: a Blender model is not a simulation; simulated values are not live data; nothing here is connected to live sensors.
+- Mark owner-reported or planned items as such when you mention them.
+- If something is not covered below, say you don't have that information and suggest the contact form or ${site.email}.
+- Politely decline unrelated requests.
 
-SKILLS:
-- AI Development: Claude Code, Cursor, OpenAI Codex, ChatGPT, Gemini, GitHub Copilot
-- LLMs: Claude, GPT-5, Gemini, Grok, Qwen, Kimi
-- Programming: JavaScript, Node.js, Express, TypeScript, Python
-- Automation: n8n, AI Agents, Workflow Automation
-- Backend: REST APIs, PostgreSQL, Redis
-- Deployment: Docker, AWS, Vercel, GitHub CI/CD
-- Visualization: Three.js, 3D Graphics
+PROFILE
+Name: ${site.name}. Title: ${site.title}. Location: ${site.location}.
+Summary: ${site.summary}
+Email: ${site.email}. GitHub: ${site.github}.
 
-SERVICES: AI Automation, AI Agents, Workflow Automation, Business Analytics, AI Dashboards, LLM Applications, Custom AI Software, Full Stack Development
+EXPERIENCE
+${experience.map((r) => `- ${r.title}, ${r.org}${r.period ? ` (${r.period})` : ''}: ${r.summary} ${r.points.join(' ')}`).join('\n')}
 
-Keep answers brief (2-4 sentences), professional, and enthusiastic. If asked about things not related to Siddharth, politely redirect.`
+EDUCATION
+${education.map((e) => `- ${e.title}, ${e.org}${e.period ? ` (${e.period})` : ''}. ${e.note}`).join('\n')}
+Certifications: ${certifications.map((c) => `${c.title} (${c.issuer})`).join(', ')}
 
-export async function POST(request: NextRequest) {
+SKILLS (no proficiency levels claimed)
+${skillGroups.map((g) => `- ${g.group}: ${g.skills.map((s) => s.name).join(', ')}`).join('\n')}
+
+SELECTED PROJECTS
+${proj}
+
+FURTHER WORKSTREAMS (no full case study yet)
+${workstreams.map((w) => `- ${w.title} (${STATUS_LABEL[w.status]}): ${w.description}`).join('\n')}
+
+SUPPORTING AI & SOFTWARE PROJECTS
+${supportingProjects.map((s) => `- ${s.title}: ${s.description} (${s.tech.join(', ')})`).join('\n')}`
+}
+
+export async function GET() {
+  return NextResponse.json({ enabled: Boolean(process.env.ABACUSAI_API_KEY) })
+}
+
+type InMsg = { role?: unknown; content?: unknown }
+
+export async function POST(req: Request) {
+  const key = process.env.ABACUSAI_API_KEY
+  if (!key) return NextResponse.json({ error: 'not_configured' }, { status: 503 })
+  if (!rateLimit(`chat:${clientKey(req)}`, 20, 10 * 60 * 1000)) {
+    return NextResponse.json({ error: 'rate_limited' }, { status: 429 })
+  }
+
+  let body: { messages?: InMsg[] }
   try {
-    const body = await request?.json?.()
-    const userMessages = body?.messages ?? []
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'invalid_json' }, { status: 400 })
+  }
 
-    const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...(userMessages?.map?.((m: any) => ({
-        role: m?.role ?? 'user',
-        content: m?.content ?? '',
-      })) ?? []),
-    ]
+  // Only user/assistant turns are accepted from the browser; the system prompt is server-side.
+  const history = (Array.isArray(body.messages) ? body.messages : [])
+    .filter((m): m is { role: 'user' | 'assistant'; content: string } => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+    .slice(-12)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }))
 
-    const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
+  if (!history.length || history[history.length - 1].role !== 'user') {
+    return NextResponse.json({ error: 'no_question' }, { status: 400 })
+  }
+
+  try {
+    const upstream = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`,
-      },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
       body: JSON.stringify({
-        model: 'gpt-5.4-mini',
-        messages,
+        model: process.env.ABACUSAI_MODEL || 'gpt-5.4-mini',
+        messages: [{ role: 'system', content: systemPrompt() }, ...history],
         stream: true,
         max_tokens: 500,
-        temperature: 0.7,
+        temperature: 0.3,
       }),
     })
-
-    if (!response?.ok) {
-      const errorText = await response?.text?.() ?? 'Unknown error'
-      console.error('LLM API error:', errorText)
-      return new Response(JSON.stringify({ error: 'LLM API request failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+    if (!upstream.ok || !upstream.body) {
+      console.error('Chat upstream error:', upstream.status)
+      return NextResponse.json({ error: 'upstream_failed' }, { status: 502 })
     }
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = response?.body?.getReader?.()
-        const decoder = new TextDecoder()
-        const encoder = new TextEncoder()
-        try {
-          if (reader) {
-            while (true) {
-              const { done, value } = await reader.read()
-              if (done) break
-              const chunk = decoder.decode(value)
-              controller.enqueue(encoder.encode(chunk))
-            }
-          }
-        } catch (error: any) {
-          console.error('Stream error:', error)
-          controller.error(error)
-        } finally {
-          controller.close()
-        }
-      },
+    return new Response(upstream.body, {
+      headers: { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-cache, no-transform' },
     })
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    })
-  } catch (error: any) {
-    console.error('Chat API error:', error)
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+  } catch (err) {
+    console.error('Chat error:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ error: 'upstream_failed' }, { status: 502 })
   }
 }

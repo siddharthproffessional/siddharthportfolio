@@ -1,39 +1,77 @@
-import dynamic from 'next/dynamic'
-
-const Navbar = dynamic(() => import('./components/navbar'), { ssr: false })
-const ScrollProgress = dynamic(() => import('./components/scroll-progress'), { ssr: false })
-const Hero = dynamic(() => import('./components/hero'), { ssr: false })
-const About = dynamic(() => import('./components/about'), { ssr: false })
-const AnimatedCounter = dynamic(() => import('./components/animated-counter'), { ssr: false })
-const Skills = dynamic(() => import('./components/skills'), { ssr: false })
-const Projects = dynamic(() => import('./components/projects'), { ssr: false })
-const BuildingTimeline = dynamic(() => import('./components/building-timeline'), { ssr: false })
-const Education = dynamic(() => import('./components/education'), { ssr: false })
-const Certifications = dynamic(() => import('./components/certifications'), { ssr: false })
-const Services = dynamic(() => import('./components/services'), { ssr: false })
-const TechStack = dynamic(() => import('./components/tech-stack'), { ssr: false })
-const Contact = dynamic(() => import('./components/contact'), { ssr: false })
-const Footer = dynamic(() => import('./components/footer'), { ssr: false })
-const AIAssistant = dynamic(() => import('./components/ai-assistant'), { ssr: false })
+import { Hero } from '@/components/site/hero'
+import { WorkflowMap } from '@/components/site/workflow-map'
+import { ProjectGallery } from '@/components/site/project-gallery'
+import { ContactForm } from '@/components/site/contact-form'
+import {
+  About,
+  CapabilityLegend,
+  ContactDetails,
+  Experience,
+  SectionHeading,
+  Skills,
+  Supporting,
+  Workstreams,
+} from '@/components/site/sections'
+import { ALL_CATEGORIES, ALL_TECH, projects } from '@/lib/projects'
+import { site, siteUrl } from '@/lib/site'
+import { getResume } from '@/lib/resume'
 
 export default function Home() {
+  const resume = getResume()
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: site.name,
+    jobTitle: site.shortTitle,
+    address: { '@type': 'PostalAddress', addressLocality: 'Dubai', addressCountry: 'AE' },
+    email: `mailto:${site.email}`,
+    url: siteUrl(),
+    sameAs: [site.github, ...(site.linkedin ? [site.linkedin] : [])],
+  }
+
   return (
-    <main className="relative min-h-screen bg-background">
-      <ScrollProgress />
-      <Navbar />
-      <Hero />
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Hero resume={resume} />
+      <WorkflowMap />
+
+      <section aria-labelledby="projects" className="border-b border-border">
+        <div className="container-page py-16 md:py-20">
+          <SectionHeading
+            id="projects"
+            title="Selected projects"
+            intro="Digital-twin, simulation and interoperability work. Each project states its status, what kind of system it is, and how its content was verified."
+          />
+          <div className="mt-8">
+            <ProjectGallery projects={projects} categories={ALL_CATEGORIES} technologies={ALL_TECH} />
+          </div>
+          <CapabilityLegend />
+          <Workstreams />
+        </div>
+      </section>
+
       <About />
-      <AnimatedCounter />
       <Skills />
-      <Projects />
-      <BuildingTimeline />
-      <Education />
-      <Certifications />
-      <Services />
-      <TechStack />
-      <Contact />
-      <Footer />
-      <AIAssistant />
-    </main>
+      <Experience />
+      <Supporting />
+
+      <section aria-labelledby="contact">
+        <div className="container-page grid gap-12 py-16 md:py-20 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <SectionHeading
+              id="contact"
+              title="Contact"
+              intro="Open to junior Digital Twin, Simulation, 3D Integration and Physical AI / robotics simulation roles in Dubai."
+            />
+            <div className="mt-8">
+              <ContactDetails />
+            </div>
+          </div>
+          <div className="lg:col-span-7">
+            <ContactForm email={site.email} />
+          </div>
+        </div>
+      </section>
+    </>
   )
 }

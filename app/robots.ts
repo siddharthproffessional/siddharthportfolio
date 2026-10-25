@@ -1,13 +1,9 @@
-import { MetadataRoute } from 'next'
-
-export const dynamic = 'force-dynamic'
+import type { MetadataRoute } from 'next'
+import { siteUrl } from '@/lib/site'
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-    },
-    sitemap: `${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/sitemap.xml`,
+    rules: { userAgent: '*', allow: '/', disallow: '/api/' },
+    sitemap: `${siteUrl()}/sitemap.xml`,
   }
 }

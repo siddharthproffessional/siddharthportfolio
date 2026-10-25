@@ -1,36 +1,56 @@
+import { randomUUID } from 'crypto'
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
+import { getPool } from '@/lib/db'
+import { clientKey, rateLimit } from '@/lib/rate-limit'
+
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+const schema = z.object({
+  name: z.string().trim().min(1, 'Enter your name.').max(100, 'Use 100 characters or fewer.'),
+  email: z.string().trim().email('Enter an email address like name@company.com.').max(200),
+  subject: z.string().trim().max(150, 'Use 150 characters or fewer.').optional().default(''),
+  message: z.string().trim().min(10, 'Write at least 10 characters.').max(5000, 'Use 5,000 characters or fewer.'),
+  company: z.string().optional().default(''), // honeypot
+})
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request?.json?.()
-    const name = body?.name?.trim?.() ?? ''
-    const email = body?.email?.trim?.() ?? ''
-    const subject = body?.subject?.trim?.() ?? 'General Inquiry'
-    const message = body?.message?.trim?.() ?? ''
-
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'Name, email, and message are required' }, { status: 400 })
-    }
-
-    const submission = await prisma.contactSubmission.create({
-      data: { name, email, subject, message },
-    })
-
-    return NextResponse.json({ success: true, id: submission?.id ?? '' })
-  } catch (error: any) {
-    console.error('Contact form error:', error)
-    return NextResponse.json({ error: 'Failed to save message' }, { status: 500 })
+export async function POST(req: Request) {
+  if (!rateLimit(`contact:${clientKey(req)}`, 5, 10 * 60 * 1000)) {
+    return NextResponse.json({ error: 'rate_limited' }, { status: 429 })
   }
-}
 
-export async function GET() {
+  let body: unknown
   try {
-    const count = await prisma.contactSubmission.count()
-    return NextResponse.json({ count })
-  } catch (error: any) {
-    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 })
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'invalid_json' }, { status: 400 })
+  }
+
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) {
+    const fields: Record<string, string> = {}
+    for (const issue of parsed.error.issues) fields[String(issue.path[0])] ??= issue.message
+    return NextResponse.json({ error: 'invalid', fields }, { status: 400 })
+  }
+
+  const { name, email, subject, message, company } = parsed.data
+  // Bots fill the hidden field; accept silently so they learn nothing.
+  if (company) return NextResponse.json({ success: true })
+
+  const pool = getPool()
+  if (!pool) {
+    return NextResponse.json({ error: 'not_configured', fallback: 'email' }, { status: 503 })
+  }
+
+  try {
+    await pool.query(
+      'INSERT INTO "ContactSubmission" ("id","name","email","subject","message","status","createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,NOW(),NOW())',
+      [randomUUID(), name, email, subject || 'General enquiry', message, 'NEW'],
+    )
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('Contact form storage error:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ error: 'storage_failed', fallback: 'email' }, { status: 500 })
   }
 }

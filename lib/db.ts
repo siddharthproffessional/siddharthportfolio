@@ -1,9 +1,16 @@
-import { PrismaClient } from '@prisma/client'
+import { Pool } from 'pg'
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+/**
+ * Optional Postgres connection for the contact form (server-only).
+ * Returns null when DATABASE_URL is not configured so callers can fall back gracefully.
+ */
+const globalForPg = globalThis as unknown as { pgPool?: Pool }
+
+export function getPool(): Pool | null {
+  const connectionString = process.env.DATABASE_URL
+  if (!connectionString) return null
+  if (!globalForPg.pgPool) {
+    globalForPg.pgPool = new Pool({ connectionString, max: 3, connectionTimeoutMillis: 5000 })
+  }
+  return globalForPg.pgPool
 }
-
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

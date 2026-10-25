@@ -14,11 +14,6 @@ const config: Config = {
         display: ['var(--font-display)', 'var(--font-sans)', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
@@ -54,6 +49,11 @@ const config: Config = {
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
+        },
+        status: {
+          complete: 'hsl(var(--status-complete))',
+          progress: 'hsl(var(--status-progress))',
+          explore: 'hsl(var(--status-explore))',
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

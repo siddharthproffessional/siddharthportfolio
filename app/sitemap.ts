@@ -1,15 +1,11 @@
-import { MetadataRoute } from 'next'
-
-export const dynamic = 'force-dynamic'
+import type { MetadataRoute } from 'next'
+import { projects } from '@/lib/projects'
+import { siteUrl } from '@/lib/site'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+  const base = siteUrl()
   return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 1,
-    },
+    { url: base, changeFrequency: 'monthly', priority: 1 },
+    ...projects.map((p) => ({ url: `${base}/projects/${p.slug}`, changeFrequency: 'monthly' as const, priority: 0.8 })),
   ]
 }
