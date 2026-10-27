@@ -6,6 +6,7 @@ import { CAPABILITY, EVIDENCE_LABEL, getProject, projects } from '@/lib/projects
 import { StatusBadge } from '@/components/site/status'
 import { Diagram } from '@/components/site/diagram'
 import { MediaGallery } from '@/components/site/media-gallery'
+import { ProjectFilm } from '@/components/site/project-film'
 import { LivePreview } from '@/components/site/live-preview'
 import { ModelViewerLazy as ModelViewer } from '@/components/site/model-viewer-lazy'
 import { ProjectVisual } from '@/components/site/project-visuals'
@@ -201,7 +202,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
               {p.tech.map((t) => (
                 <div key={t.name} className="py-3">
                   <dt className="font-medium">
-                    {t.name} <span className="ml-1 text-xs font-normal text-muted-foreground">{t.verified ? 'Checked in source' : 'Not yet checked'}</span>
+                    {t.name} <span className="ml-1 text-xs font-normal text-muted-foreground">{t.verified ? (p.evidence === 'media' ? 'Seen in published media' : 'Checked in source') : 'Not yet checked'}</span>
                   </dt>
                   <dd className="mt-1 text-[0.95rem] text-foreground/85">{t.role}</dd>
                 </div>
@@ -221,7 +222,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
                     <tr key={t.name} className="border-b border-border align-top">
                       <td className="py-3 pr-6 font-medium">{t.name}</td>
                       <td className="py-3 pr-6 text-foreground/85">{t.role}</td>
-                      <td className="whitespace-nowrap py-3 text-sm text-muted-foreground">{t.verified ? 'In source' : 'Not yet'}</td>
+                      <td className="whitespace-nowrap py-3 text-sm text-muted-foreground">{t.verified ? (p.evidence === 'media' ? 'In media' : 'In source') : 'Not yet'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -229,7 +230,12 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             </div>
           </Block>
 
-          <Block id="media" title={p.preview ? 'Live preview and screenshots' : 'Screenshots'}>
+          <Block id="media" title={p.preview ? 'Live preview and screenshots' : p.film ? 'Film and stills' : 'Screenshots'}>
+            {p.film && (
+              <div className="mb-8">
+                <ProjectFilm film={p.film} />
+              </div>
+            )}
             {p.preview && (
               <div className="mb-8">
                 <LivePreview src={p.preview} title={p.title} poster={p.media[0]?.src} />

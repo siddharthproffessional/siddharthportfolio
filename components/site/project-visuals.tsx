@@ -238,6 +238,32 @@ function ConveyorVisual() {
   )
 }
 
+/** Bottling line: real frames from the rendered film; hovering moves in to a station close-up. */
+function FilmVisual({ p }: { p: Project }) {
+  const [a, b] = p.media
+  return (
+    <Frame>
+      <Parallax amount={20} className="absolute inset-0">
+        <Image src={a.src} alt={a.alt} width={a.width} height={a.height} sizes="(min-width: 1024px) 720px, 100vw" className="h-full w-full object-cover" />
+      </Parallax>
+      {b && (
+        <Image
+          src={b.src}
+          alt={b.alt}
+          width={b.width}
+          height={b.height}
+          sizes="(min-width: 1024px) 720px, 100vw"
+          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-slow ease-out group-hover/visual:opacity-100"
+        />
+      )}
+      <span className="annotation absolute bottom-3 left-3 rounded-full border border-white/10 bg-background/80 px-2.5 py-1 backdrop-blur">
+        <span className="group-hover/visual:hidden">Frame from the production film · hover for a station</span>
+        <span className="hidden group-hover/visual:inline">01 Filling station</span>
+      </span>
+    </Frame>
+  )
+}
+
 export function ProjectVisual({ project }: { project: Project }) {
   switch (project.visual) {
     case 'heatmap':
@@ -252,5 +278,7 @@ export function ProjectVisual({ project }: { project: Project }) {
       return <UsdTreeVisual />
     case 'conveyor':
       return <ConveyorVisual />
+    case 'film':
+      return <FilmVisual p={project} />
   }
 }

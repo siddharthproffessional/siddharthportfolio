@@ -15,7 +15,7 @@ export const skillGroups: SkillGroup[] = [
     group: 'Digital Twin & 3D',
     summary: 'Authoring, preparing and reviewing scenes in DCC, BIM, real-time and simulation tools.',
     skills: [
-      { name: 'Blender 5.2', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
+      { name: 'Blender 5.2', evidence: [p('bottling-line-twin', 'Bottling line'), p('blender-usd-unreal-omniverse', 'Interop')] },
       { name: 'Unreal Engine', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
       { name: 'NVIDIA Omniverse', evidence: [p('blender-usd-unreal-omniverse', 'Interop')] },
       { name: 'Isaac Sim', evidence: [p('simready-robotics-workflow', 'SimReady')] },

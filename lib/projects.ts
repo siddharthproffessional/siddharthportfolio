@@ -60,11 +60,12 @@ export type Category =
   | 'Robotics simulation'
   | 'Interoperability'
 
-export type Evidence = 'source-and-app' | 'source' | 'owner-reported'
+export type Evidence = 'source-and-app' | 'source' | 'media' | 'owner-reported'
 
 export const EVIDENCE_LABEL: Record<Evidence, string> = {
   'source-and-app': 'Verified against source code and the running application',
   source: 'Verified against source code',
+  media: 'Verified against published media — project files not yet reviewed',
   'owner-reported': 'Owner-reported — source and media not yet reviewed',
 }
 
@@ -79,9 +80,20 @@ export type Diagram = {
 
 export type Media = { src: string; alt: string; caption: string; width: number; height: number }
 
+/** A rendered or recorded film of the project, served from /public. */
+export type Film = {
+  src: string
+  poster: string
+  title: string
+  caption: string
+  width: number
+  height: number
+  durationSeconds: number
+}
+
 export type TechRole = { name: string; role: string; verified: boolean }
 
-export type ProjectVisual = 'heatmap' | 'model' | 'asset-flow' | 'axes' | 'usd-tree' | 'conveyor'
+export type ProjectVisual = 'heatmap' | 'model' | 'asset-flow' | 'axes' | 'usd-tree' | 'conveyor' | 'film'
 
 export type Project = {
   slug: string
@@ -105,6 +117,8 @@ export type Project = {
   planned?: string[]
   diagram: Diagram
   media: Media[]
+  /** Optional film shown above the screenshot gallery. */
+  film?: Film
   results: string[]
   challenges: { challenge: string; solution: string }[]
   limitations: string[]
@@ -678,27 +692,30 @@ export const projects: Project[] = [
   {
     slug: 'bottling-line-twin',
     year: '',
-    visual: 'conveyor',
+    visual: 'film',
     title: 'Industrial Bottling-Line Digital Twin',
     tagline:
-      'Blender-built industrial environment of a bottling line, organised and prepared for interactive visualization and future simulation.',
+      'Blender-built bottling line with five working stations — filling, capping, sleeve heat-shrink, inspection and conveyor drive — presented as a 60-second animated production film rendered in Cycles.',
     status: 'completed',
-    statusNote: '3D model and scene stage complete; simulation not yet verified',
+    statusNote: '3D model and animated production film complete; physics simulation not yet built',
     capability: 'blender-model',
     categories: ['Industrial'],
     featured: true,
     tech: [
-      { name: 'Blender', role: 'Modelling of the environment, machinery and assets; materials; scene hierarchy', verified: false },
+      { name: 'Blender', role: 'Modelling of the line, machinery, bottles and building; materials; animation of the production sequence', verified: true },
+      { name: 'Cycles', role: 'Rendered the 1080p production film (named on the film’s end card)', verified: true },
       { name: 'Python (bpy)', role: 'Scene automation where used — to be documented', verified: false },
-      { name: 'OpenUSD / Omniverse', role: 'Planned route for physics simulation — not yet verified', verified: false },
+      { name: 'OpenUSD / Omniverse', role: 'Planned route for physics simulation — not yet built', verified: false },
     ],
     problem:
-      'Manufacturing teams reviewing a production line — layout, machine spacing, operator access — usually work from 2D drawings. A navigable 3D model makes those conversations faster and is the first layer any later simulation needs.',
+      'Manufacturing teams reviewing a production line — layout, machine spacing, operator access, the order of operations — usually work from 2D drawings. A 3D model that shows each station working in sequence makes those conversations faster and is the first layer any later simulation needs.',
     objective:
-      'Model a bottling-line environment in Blender with an organised scene, distinct machinery and asset groups and consistent materials, so it can be reused for interactive visualization and, later, physics simulation.',
+      'Model a bottling line in Blender with distinct, organised stations and consistent materials, and show the full production sequence in an animated film that can later be replaced by physics-driven simulation.',
     implemented: [
-      { text: 'Blender model of an industrial bottling-line environment, including machinery, assets and materials (owner-reported).', verified: false },
-      { text: 'Scene organised for reuse in interactive visualization (owner-reported).', verified: false },
+      { text: 'Blender model of a single bottling line inside a building: a straight conveyor with guide rails, five stations and a control panel, with consistent metal, glass and liquid materials.', verified: true },
+      { text: 'Animated sequence in which empty bottles are filled, capped, sleeved and heat-shrunk, inspected and carried on by the conveyor drive, each step labelled in the film.', verified: true },
+      { text: 'Close-up shots of each station — filling nozzle, capping head, heat-shrink tunnel, inspection sensor and conveyor motor — plus an establishing shot of the whole line.', verified: true },
+      { text: '60-second 1080p film rendered in Blender Cycles.', verified: true },
     ],
     planned: [
       'Conveyor and bottle rigid-body physics in NVIDIA Omniverse.',
@@ -708,7 +725,8 @@ export const projects: Project[] = [
     diagram: {
       title: 'Current model versus proposed pipeline',
       columns: [
-        [{ id: 'model', label: 'Blender scene', detail: 'Machinery, assets, materials' }],
+        [{ id: 'model', label: 'Blender scene', detail: 'Line, five stations, materials' }],
+        [{ id: 'film', label: 'Animated film', detail: 'Cycles render · 60 s · 1080p' }],
         [{ id: 'usd', label: 'USD export', detail: 'Units, hierarchy, materials', planned: true }],
         [
           { id: 'phys', label: 'Omniverse physics', detail: 'Conveyor + rigid bodies', planned: true },
@@ -716,27 +734,82 @@ export const projects: Project[] = [
         ],
       ],
       edges: [
+        ['model', 'film'],
         ['model', 'usd'],
         ['usd', 'phys'],
         ['usd', 'viz'],
       ],
-      note: 'Solid node: current work. Dashed nodes: proposed stages that are not built yet.',
+      note: 'Solid nodes: current work. Dashed nodes: proposed stages that are not built yet.',
     },
-    media: [],
-    results: ['Renders and scene breakdown have not been published yet.'],
+    film: {
+      src: '/projects/bottling-line/bottling-line-film.mp4',
+      poster: '/projects/bottling-line/overview.webp',
+      title: 'Bottling Line 01 — production film',
+      caption: 'Animated production sequence rendered in Blender Cycles: filling, capping, sleeve heat-shrink, inspection and conveyor drive.',
+      width: 1920,
+      height: 1080,
+      durationSeconds: 60,
+    },
+    media: [
+      {
+        src: '/projects/bottling-line/overview.webp',
+        alt: 'Wide view of the bottling line inside a light-grey building: a long conveyor runs past filling, capping, heat-shrink and inspection machines, with a control panel in the foreground.',
+        caption: 'Establishing shot of the full line.',
+        width: 1600,
+        height: 900,
+      },
+      {
+        src: '/projects/bottling-line/filling.webp',
+        alt: 'Close-up of the filling station: a nozzle above a glass bottle on the conveyor, with a filled bottle beside it.',
+        caption: '01 Filling — bottles are filled under the nozzle.',
+        width: 1600,
+        height: 900,
+      },
+      {
+        src: '/projects/bottling-line/capping.webp',
+        alt: 'Close-up of the capping head lowering a pink cap onto a filled bottle between guide rails.',
+        caption: '02 Capping.',
+        width: 1600,
+        height: 900,
+      },
+      {
+        src: '/projects/bottling-line/heat-shrink.webp',
+        alt: 'A bottle passing through the heat-shrink tunnel, wrapped in a dark sleeve with an orange band.',
+        caption: '03 Sleeve heat-shrink.',
+        width: 1600,
+        height: 900,
+      },
+      {
+        src: '/projects/bottling-line/inspection.webp',
+        alt: 'Sleeved and capped bottles passing an inspection sensor in front of a white backing panel.',
+        caption: '04 Inspection.',
+        width: 1600,
+        height: 900,
+      },
+    ],
+    results: [
+      'A 60-second production film shows all five stations operating in sequence on one line.',
+      'Stills above are frames taken directly from the film.',
+    ],
     challenges: [],
     limitations: [
-      'This is a 3D model and scene; it does not simulate machine behaviour, product flow or physics.',
-      'No renders or scene files are published yet, so the model cannot be inspected here.',
+      'The film shows the production sequence only; no simulation model, throughput, cycle-time or fault data is published with it.',
+      'Blender scene files have not been reviewed for this page, so modelling methods and scene hierarchy are not documented here.',
+      'The line is a modelled environment, not a replica of a specific factory.',
     ],
     future: [
-      'Publish renders and a scene-hierarchy breakdown.',
+      'Publish a scene-hierarchy breakdown and modelling notes.',
       'Export through OpenUSD and set up conveyor and rigid-body physics in Omniverse.',
+      'Drive the line from simulated states so throughput and bottlenecks can be measured.',
     ],
     links: [],
-    unavailableLinks: ['Renders and scene files not yet published.'],
-    evidence: 'owner-reported',
-    verification: ['No Blender files or renders were available for this review. Content is limited to the owner’s description.'],
+    unavailableLinks: ['Blender scene files are not published.'],
+    evidence: 'media',
+    verification: [
+      'Reviewed the owner’s 60-second, 1080p production film on 27 Oct 2026; every implemented item above is visible in it.',
+      'The film was re-encoded for the web without editing; stills are unaltered frames from it.',
+      'Blender scene files were not available, so modelling methods are not verified.',
+    ],
   },
 ]
 
