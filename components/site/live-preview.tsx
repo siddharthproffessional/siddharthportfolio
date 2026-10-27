@@ -40,7 +40,7 @@ export function LivePreview({ src, title, poster }: { src: string; title: string
           )}
           <span className="btn btn-primary relative">
             <Play className="h-4 w-4" aria-hidden />
-            Run the live 3D app here
+            Run the live app here
           </span>
           <span className="absolute inset-x-0 bottom-3 text-center text-xs text-muted-foreground">Loads the deployed application. Values inside it are simulated.</span>
         </button>
