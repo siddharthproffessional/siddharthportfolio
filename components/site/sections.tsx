@@ -116,7 +116,7 @@ export function Supporting() {
         <SectionHeading id="software" title="Supporting software work" intro="AI and web projects from my existing portfolio that built the software skills behind the twins." />
         <ul className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-2">
           {supportingProjects.map((p, i) => (
-            <Reveal as="li" kind="scale" delay={i * 0.06} key={p.title} className="flex flex-col bg-background p-7">
+            <Reveal as="li" kind="scale" delay={i * 0.06} key={p.title} className="flex flex-col bg-background p-7 md:odd:last:col-span-2">
               <h3 className="text-3xl">{p.title}</h3>
               <p className="mt-3 text-[0.975rem] text-muted-foreground">{p.description}</p>
               <p className="annotation mt-5">{p.tech.join(' · ')}</p>
@@ -126,6 +126,7 @@ export function Supporting() {
                   <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
                 </a>
               ))}
+              {p.note && <p className="mt-2 text-xs text-muted-foreground">{p.note}</p>}
             </Reveal>
           ))}
         </ul>

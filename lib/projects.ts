@@ -858,7 +858,7 @@ export const workstreams: Workstream[] = [
 ]
 
 /** Secondary AI and software projects. */
-export type SupportingProject = { title: string; description: string; tech: string[]; links: { label: string; href: string }[] }
+export type SupportingProject = { title: string; description: string; tech: string[]; links: { label: string; href: string }[]; note?: string }
 
 export const supportingProjects: SupportingProject[] = [
   {
@@ -866,6 +866,13 @@ export const supportingProjects: SupportingProject[] = [
     description: 'Full-stack financial intelligence platform with 3D visualizations and an LLM-backed analysis layer.',
     tech: ['React', 'Three.js', 'Anthropic API'],
     links: [],
+  },
+  {
+    title: 'ATLAS Signals AI — global intelligence platform',
+    description: 'AI-driven signal chains across geopolitics and markets, built as real-time global intelligence for decision makers.',
+    tech: ['Abacus.AI', 'AI signal chains'],
+    links: [{ label: 'Open live app', href: 'https://atlas-signals.abacusai.cloud/' }],
+    note: 'The live app asks visitors to sign in.',
   },
   {
     title: 'Jarvis Business OS — AI agent system',
